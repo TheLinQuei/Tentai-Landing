@@ -141,29 +141,23 @@ document.querySelectorAll('img').forEach(img => {
     img.addEventListener('dragstart', e => e.preventDefault());
 });
 
-// Test chat widget
+// Test chat widget — talks to Vi via the OpenAI-dialect adapter
+// (POST /v1/chat/completions). Session continuity within the visitor's
+// browser is handled by storing the X-Vi-Session-Id Vi returns and
+// sending it back on subsequent turns.
 const testChat = document.querySelector('.test-chat');
 if (testChat) {
-    const apiBase = testChat.dataset.apiBase || 'https://tentai-ecosystem.onrender.com';
+    const apiBase = testChat.dataset.apiBase || 'https://vi-api-zr7hl3nzja-uc.a.run.app';
+    const apiKey = testChat.dataset.apiKey || '';
+    const model = testChat.dataset.model || 'vi';
     const messagesEl = document.getElementById('testChatMessages');
     const formEl = document.getElementById('testChatForm');
     const inputEl = document.getElementById('testChatInput');
 
-    const getId = (key) => {
-        let value = localStorage.getItem(key);
-        if (!value) {
-            value = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-                const r = Math.random() * 16 | 0;
-                const v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-            localStorage.setItem(key, value);
-        }
-        return value;
-    };
-
-    const userId = getId('vi-demo-user-id');
-    const conversationId = getId('vi-demo-conversation-id');
+    // Persist Vi's sessionId across page reloads so the same visitor in
+    // the same browser gets continuity. Cleared if the user opens a new
+    // browser / private tab.
+    const SESSION_KEY = 'vi-demo-session-id';
 
     const appendMessage = (role, text) => {
         if (!messagesEl) return;
@@ -188,25 +182,39 @@ if (testChat) {
             inputEl.disabled = true;
 
             try {
-                const response = await fetch(`${apiBase}/v1/chat`, {
+                const headers = { 'Content-Type': 'application/json' };
+                if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+                const existingSession = localStorage.getItem(SESSION_KEY);
+                if (existingSession) headers['X-Vi-Session-Id'] = existingSession;
+
+                const response = await fetch(`${apiBase}/v1/chat/completions`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers,
                     body: JSON.stringify({
-                        userId,
-                        conversationId,
-                        message: text,
-                        source: 'web-demo',
+                        model,
+                        messages: [{ role: 'user', content: text }],
+                        stream: false,
                     }),
                 });
 
                 if (!response.ok) {
-                    throw new Error('Vi is unavailable right now.');
+                    // Try to surface the actual error message Vi sent back
+                    let detail = '';
+                    try {
+                        const errBody = await response.json();
+                        detail = errBody?.error?.message || '';
+                    } catch (_) { /* ignore */ }
+                    throw new Error(detail || `Vi returned HTTP ${response.status}.`);
                 }
 
                 const data = await response.json();
-                appendMessage('assistant', data.output || 'Thanks for reaching out.');
+                const reply = data?.choices?.[0]?.message?.content;
+                const sessionId = data?.vi?.sessionId;
+                if (sessionId) localStorage.setItem(SESSION_KEY, sessionId);
+                appendMessage('assistant', reply || 'Vi did not return a reply this turn.');
             } catch (error) {
-                appendMessage('assistant', 'Vi is warming up. Please try again shortly.');
+                const msg = (error && error.message) ? error.message : 'Vi is warming up. Please try again shortly.';
+                appendMessage('assistant', msg);
             } finally {
                 inputEl.disabled = false;
                 inputEl.focus();
