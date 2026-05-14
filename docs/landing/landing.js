@@ -182,10 +182,14 @@ if (testChat) {
             inputEl.disabled = true;
 
             try {
+                // Vi-api's CORS allowedHeaders is currently
+                // [Content-Type, Authorization, x-api-key] — X-Vi-Session-Id
+                // is NOT allowed, so sending it would fail preflight. Until
+                // vi-api adds it to the allowlist, the demo runs without
+                // session continuity (each turn = new Vi session). Vi's
+                // user-global continuity (per-API-key) still applies.
                 const headers = { 'Content-Type': 'application/json' };
                 if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
-                const existingSession = localStorage.getItem(SESSION_KEY);
-                if (existingSession) headers['X-Vi-Session-Id'] = existingSession;
 
                 const response = await fetch(`${apiBase}/v1/chat/completions`, {
                     method: 'POST',
