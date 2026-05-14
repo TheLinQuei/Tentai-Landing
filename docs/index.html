@@ -32,7 +32,7 @@
     </script>
     <script src="/landing/analytics.js" defer></script>
     
-    <link rel="stylesheet" href="/landing/landing.css?v=20260216">
+    <link rel="stylesheet" href="/landing/landing.css?v=20260514e">
     <style>
         .mock-calendar {
             background: rgba(255, 255, 255, 0.04);
@@ -162,50 +162,52 @@
         <div class="hero-content">
             <div class="hero-badge">
                 <span class="badge-dot"></span>
-                Vi is live · February 2026
+                Tentai Technology · Building since 2026
             </div>
-            
+
             <h1 class="hero-title">
-                <span class="title-main">Meet Vi</span>
-                <span class="title-sub">One Presence, Everywhere</span>
+                <span class="title-main">Tentai Technology</span>
+                <span class="title-sub">Calm, continuous tools.</span>
             </h1>
-            
+
             <p class="hero-description">
-                Vi is a calm, continuous intelligence. Not a chatbot. A presence.
+                We build software that respects the people who use it.
+                No tracking, no noise, no churn.
                 <br/>
                 <br/>
-                One singular self, across chat, lore, operations, and community.
+                <strong>Vi</strong> is our first — a calm, continuous intelligence available wherever you are.
+                <strong>Vigil</strong> brings her into Discord. <strong>Sol Calendar</strong> is the time scaffolding we live on. More is coming.
             </p>
 
-            <p class="hero-note">Luxury without excess. Continuity without noise.</p>
+            <p class="hero-note">One identity. Many surfaces. Built with intent.</p>
 
             <div class="hero-cta">
                 <a href="#try-vi" class="btn btn-primary">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
                     </svg>
-                    Chat with Vi
+                    Talk to Vi
                 </a>
                 <a href="#projects" class="btn btn-secondary">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"/>
                     </svg>
-                    See the Projects
+                    See all projects
                 </a>
             </div>
 
             <div class="hero-stats">
                 <div class="stat">
-                    <div class="stat-number">1</div>
-                    <div class="stat-label">Singular Presence</div>
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Continuity across surfaces</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-number">∞</div>
-                    <div class="stat-label">Cross-Client Memory</div>
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Identity, many places</div>
                 </div>
                 <div class="stat">
                     <div class="stat-number">0</div>
-                    <div class="stat-label">Personality Reset</div>
+                    <div class="stat-label">Tracking, ads, harvesting</div>
                 </div>
             </div>
         </div>
@@ -505,30 +507,14 @@
             <div class="demo-content">
                 <div class="demo-text">
                     <h2>Sol Calendar</h2>
-                    <p>Tentai's internal calendar tool. Ethiopian and Gregorian, side by side. Not a separate product — just a calendar we use, embedded here so you can use it too.</p>
+                    <p>Tentai's internal calendar — 13 months of 28 days each, plus a Still Day at year-end. Anchored to Gregorian (Sol Day 1 = Jan 1), so the year boundary stays familiar even though every month is exactly four weeks.</p>
 
-                    <div class="demo-features">
-                        <div class="demo-feature">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                            <span>Dual calendar display</span>
-                        </div>
-                        <div class="demo-feature">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                            <span>Holiday markings on both</span>
-                        </div>
-                        <div class="demo-feature">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
-                            <span>Open source, your data stays local</span>
-                        </div>
+                    <div class="sol-lookup">
+                        <label for="solLookupInput" class="sol-lookup-label">Look up any date</label>
+                        <input type="date" id="solLookupInput" class="sol-lookup-input" aria-label="Gregorian date to convert" />
+                        <div id="solLookupResult" class="sol-lookup-result"></div>
+                        <p class="sol-lookup-hint">Pick your birthday, anniversary, or any date to see when it falls in Sol Calendar.</p>
                     </div>
-
-                    <p style="opacity:0.6; font-size:0.9em; margin-top:16px;">Widget shows a static demo today — live navigation coming in the next pass.</p>
                 </div>
 
                 <div class="demo-visual">
@@ -716,6 +702,6 @@
         </div>
     </div>
 
-    <script src="/landing/landing.js?v=20260514d"></script>
+    <script src="/landing/landing.js?v=20260514e"></script>
 </body>
 </html>

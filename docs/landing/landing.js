@@ -227,23 +227,112 @@ if (testChat) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// Sol Calendar widget — live, navigable.
+// Sol Calendar engine + widget.
 //
-// Sol Calendar is Tentai's invented 13-month system: 12 months of 28 days
-// + 1 "Still Day" (or "Leap Still Day" in leap years) = 365/366 total.
-// Anchored to the winter solstice (Dec 21 by default = Sol day 319).
-// Algorithm cribbed from TheLinQuei/sol-calendar/src/calendar.js so the
-// widget stays in sync with the canonical product.
+// Tentai's invented 13-month calendar:
+//  - Sol Year N = Gregorian Year N (both start Jan 1, both end Dec 31).
+//  - Sol Day 1 = Gregorian Jan 1, named "April 1" in Sol Calendar.
+//  - 13 months × 28 days = 364 days, in order:
+//      April, May, June, July, August, Sol, September, October,
+//      November, December, January, February, March
+//  - Sol Day 365 = "Still Day" (Gregorian Dec 31 non-leap / Dec 30 leap).
+//  - Sol Day 366 = "Leap Still Day" (Gregorian Dec 31, leap years only).
+//  - Internal weekday: Sol Day 1 = Monday. The 7-day cycle is internal to
+//    Sol — 364 days = 52 weeks exactly, and Still Day(s) are intercalary
+//    (no weekday), so every Sol year starts on Monday again. Every Sol
+//    month is identical: 4 rows × 7 columns, Monday-first.
 // ─────────────────────────────────────────────────────────────────────────
-(function solCalendarWidget() {
-  const widget = document.getElementById('solCalendarWidget');
-  if (!widget) return;
-
+const SolEngine = (function () {
   const MONTHS = [
     'April', 'May', 'June', 'July', 'August', 'Sol',
     'September', 'October', 'November', 'December',
     'January', 'February', 'March',
   ];
+
+  const WEEKDAY_NAMES_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const WEEKDAY_NAMES_LONG = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+  const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
+
+  // Day-of-year (1-indexed): Jan 1 = 1, Dec 31 = 365 or 366.
+  const dayOfYear = (d) => {
+    const start = Date.UTC(d.getFullYear(), 0, 1);
+    const cur = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+    return Math.round((cur - start) / 86400000) + 1;
+  };
+
+  // Gregorian Date → Sol date { year, dayInYear, monthIndex?, monthName?, day?, special?, weekday? }.
+  const fromGregorian = (gDate) => {
+    const year = gDate.getFullYear();
+    const dayInYear = dayOfYear(gDate);
+    if (dayInYear <= 364) {
+      const monthIndex = Math.floor((dayInYear - 1) / 28);
+      const day = ((dayInYear - 1) % 28) + 1;
+      return {
+        year,
+        dayInYear,
+        monthIndex,
+        monthName: MONTHS[monthIndex],
+        day,
+        weekday: (dayInYear - 1) % 7,
+      };
+    }
+    if (dayInYear === 365) return { year, dayInYear, special: 'Still Day' };
+    return { year, dayInYear, special: 'Leap Still Day' };
+  };
+
+  // Sol date (year + dayInYear) → Gregorian Date.
+  const toGregorian = (year, dayInYear) => new Date(year, 0, dayInYear);
+
+  // Build the 28-day grid for a given Sol month (year + monthIndex).
+  // Returns an array of 28 { day, gregorian, weekday, isToday }.
+  const buildMonth = (year, monthIndex) => {
+    const todayISO = new Date().toISOString().slice(0, 10);
+    const firstDayInYear = monthIndex * 28 + 1;
+    const days = [];
+    for (let i = 0; i < 28; i++) {
+      const dayInYear = firstDayInYear + i;
+      const greg = toGregorian(year, dayInYear);
+      days.push({
+        day: i + 1,
+        gregorian: greg,
+        weekday: i % 7, // Mon=0 since Sol Day 1 = Mon and months always start on Mon
+        isToday: greg.toISOString().slice(0, 10) === todayISO,
+      });
+    }
+    return days;
+  };
+
+  // Build the still-day appendix for a year — 1 or 2 days outside any month.
+  const buildAppendix = (year) => {
+    const days = [{ dayInYear: 365, gregorian: toGregorian(year, 365), label: 'Still Day' }];
+    if (isLeap(year)) {
+      days.push({ dayInYear: 366, gregorian: toGregorian(year, 366), label: 'Leap Still Day' });
+    }
+    return days;
+  };
+
+  const fmtGreg = (d) => {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  };
+
+  const fmtSol = (sol) => {
+    if (sol.special) return `${sol.special} · Sol Year ${sol.year}`;
+    return `${sol.monthName} ${sol.day}, Sol Year ${sol.year}`;
+  };
+
+  const fmtSolWithWeekday = (sol) => {
+    if (sol.special) return fmtSol(sol);
+    return `${WEEKDAY_NAMES_LONG[sol.weekday]}, ${sol.monthName} ${sol.day}, Sol Year ${sol.year}`;
+  };
+
+  return { MONTHS, WEEKDAY_NAMES_SHORT, isLeap, fromGregorian, toGregorian, buildMonth, buildAppendix, fmtGreg, fmtSol, fmtSolWithWeekday };
+})();
+
+(function solCalendarWidget() {
+  const widget = document.getElementById('solCalendarWidget');
+  if (!widget) return;
 
   const titleEl = document.getElementById('solCalTitle');
   const subtitleEl = document.getElementById('solCalSubtitle');
@@ -251,156 +340,128 @@ if (testChat) {
   const prevBtn = document.getElementById('solPrev');
   const nextBtn = document.getElementById('solNext');
 
-  const isLeapYear = (y) => (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
-
-  const daysBetween = (a, b) => {
-    const ms = 86400000;
-    const ua = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
-    const ub = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
-    return Math.round((ub - ua) / ms);
+  // Replace existing weekday headers (which were Sun-first) with Mon-first.
+  const replaceHeaders = () => {
+    while (gridEl.firstChild) gridEl.removeChild(gridEl.firstChild);
+    SolEngine.WEEKDAY_NAMES_SHORT.forEach(name => {
+      const h = document.createElement('div');
+      h.className = 'calendar-day header';
+      h.textContent = name;
+      gridEl.appendChild(h);
+    });
   };
+  replaceHeaders();
 
-  // Default winter-solstice anchor: Dec 21, Sol day 319.
-  const WINTER_SOLSTICE_DAY = 319;
-  const winterSolsticeForYear = (y) => new Date(y, 11, 21, 0, 0, 0, 0);
-
-  // Convert a Gregorian Date → Sol day number (1..365/366).
-  const dayNoFromGregorian = (gDate) => {
-    const y = gDate.getFullYear();
-    const wsThis = winterSolsticeForYear(y);
-    const wsPrev = winterSolsticeForYear(y - 1);
-    const anchor = gDate >= wsThis ? wsThis : wsPrev;
-    const anchorYear = anchor.getFullYear();
-    const len = isLeapYear(anchorYear) ? 366 : 365;
-    const daysAfter = daysBetween(anchor, gDate);
-    let solDay = WINTER_SOLSTICE_DAY + daysAfter;
-    solDay = ((solDay - 1) % len + len) % len + 1;
-    return { solDay, anchorYear, yearLen: len };
-  };
-
-  // Convert Sol day number → { monthIndex, day, special? }.
-  const monthDayFromDayNo = (dayNo, yearLen) => {
-    if (dayNo === 365 && yearLen === 365) return { special: 'Still Day' };
-    if (dayNo === 366 && yearLen === 366) return { special: 'Leap Still Day' };
-    if (dayNo === 365 && yearLen === 366) return { special: 'Still Day' };
-    const idx = Math.floor((dayNo - 1) / 28);
-    const day = ((dayNo - 1) % 28) + 1;
-    return { monthIndex: idx, day, monthName: MONTHS[idx] };
-  };
-
-  // Find the Gregorian Date for a given Sol day in a given anchor-year cycle.
-  // Walks forward/back from a reference date until the solDay matches.
-  const gregorianForSolDay = (targetSolDay, nearDate) => {
-    const base = new Date(nearDate.getFullYear(), nearDate.getMonth(), nearDate.getDate());
-    for (let r = 0; r <= 400; r++) {
-      const offset = r === 0 ? 0 : (r % 2 === 0 ? r / 2 : -((r + 1) / 2));
-      const test = new Date(base.getFullYear(), base.getMonth(), base.getDate() + offset);
-      const { solDay } = dayNoFromGregorian(test);
-      if (solDay === targetSolDay) return test;
-    }
-    return null;
-  };
-
-  // Format Gregorian date as "Dec 21, 2026".
-  const fmtGreg = (d) => {
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-  };
-
-  // Render the calendar for a given Sol month index (0–12).
-  // anchorYear is the Gregorian year of the winter solstice that started this Sol year.
-  const render = (monthIndex, anchorYear) => {
-    // Clear existing day cells, keep weekday headers (first 7 children).
-    while (gridEl.children.length > 7) gridEl.removeChild(gridEl.lastChild);
-
-    if (monthIndex === 13) {
-      // Still Day(s) view — 1 or 2 days outside the 28-day grid.
-      const stillDayNos = isLeapYear(anchorYear) ? [365, 366] : [365];
-      const refDate = winterSolsticeForYear(anchorYear);
-      const days = stillDayNos.map(n => ({ dayNo: n, gDate: gregorianForSolDay(n, refDate) }));
-      titleEl.textContent = `Still Day${days.length > 1 ? 's' : ''} · ${anchorYear}`;
-      subtitleEl.textContent = days.map(d => fmtGreg(d.gDate)).join(' & ');
-      // Spacer to align with grid
-      for (let i = 0; i < 7; i++) {
-        const blank = document.createElement('div');
-        blank.className = 'calendar-day';
-        blank.style.visibility = 'hidden';
-        gridEl.appendChild(blank);
-      }
-      days.forEach((d, idx) => {
-        const cell = document.createElement('div');
-        cell.className = 'calendar-day';
-        cell.style.gridColumn = (3 + idx).toString(); // center-ish
-        cell.style.fontWeight = '600';
-        cell.style.color = 'var(--accent, #A88CFF)';
-        cell.textContent = stillDayNos[idx] === 365 ? '★' : '✦';
-        cell.title = monthDayFromDayNo(d.dayNo, isLeapYear(anchorYear) ? 366 : 365).special;
-        gridEl.appendChild(cell);
-      });
-      return;
-    }
-
-    // Regular Sol month (always 28 days).
-    const monthName = MONTHS[monthIndex];
-    // First day of this Sol month: solDay = monthIndex * 28 + 1
-    const firstSolDay = monthIndex * 28 + 1;
-    const refDate = winterSolsticeForYear(anchorYear);
-    const firstGregDate = gregorianForSolDay(firstSolDay, refDate);
-    const lastGregDate = new Date(firstGregDate);
-    lastGregDate.setDate(lastGregDate.getDate() + 27);
-
-    titleEl.textContent = `${monthName} · ${anchorYear}`;
-    subtitleEl.textContent = `${fmtGreg(firstGregDate)} – ${fmtGreg(lastGregDate)}`;
-
-    // Layout: 28 days laid out by weekday (firstGregDate's weekday = column offset).
-    const firstWeekday = firstGregDate.getDay(); // 0=Sun
-    for (let i = 0; i < firstWeekday; i++) {
-      const blank = document.createElement('div');
-      blank.className = 'calendar-day';
-      blank.style.visibility = 'hidden';
-      gridEl.appendChild(blank);
-    }
-
-    const today = new Date();
-    const todayISO = today.toISOString().slice(0, 10);
-    for (let i = 0; i < 28; i++) {
-      const gDate = new Date(firstGregDate);
-      gDate.setDate(gDate.getDate() + i);
+  // Append a day cell to the grid.
+  const renderMonth = (year, monthIndex) => {
+    replaceHeaders();
+    const days = SolEngine.buildMonth(year, monthIndex);
+    titleEl.textContent = `${SolEngine.MONTHS[monthIndex]} · Sol Year ${year}`;
+    subtitleEl.textContent = `${SolEngine.fmtGreg(days[0].gregorian)} – ${SolEngine.fmtGreg(days[27].gregorian)}`;
+    days.forEach(d => {
       const cell = document.createElement('div');
-      cell.className = 'calendar-day';
-      cell.textContent = (i + 1).toString();
-      cell.title = fmtGreg(gDate);
-      if (gDate.toISOString().slice(0, 10) === todayISO) {
-        cell.classList.add('today');
-      }
+      cell.className = 'calendar-day' + (d.isToday ? ' today' : '');
+      cell.textContent = d.day.toString();
+      cell.title = `${SolEngine.MONTHS[monthIndex]} ${d.day}, Sol Year ${year} = ${SolEngine.fmtGreg(d.gregorian)}`;
       gridEl.appendChild(cell);
-    }
+    });
   };
 
-  // State: which Sol month + anchor-year cycle we're showing.
-  // Start at today.
-  const now = new Date();
-  const { solDay: todaySolDay, anchorYear: todayAnchorYear, yearLen: todayYearLen } = dayNoFromGregorian(now);
-  const todayInfo = monthDayFromDayNo(todaySolDay, todayYearLen);
-  let current = {
-    monthIndex: todayInfo.special ? 13 : todayInfo.monthIndex,
-    anchorYear: todayAnchorYear,
+  const renderAppendix = (year) => {
+    replaceHeaders();
+    const days = SolEngine.buildAppendix(year);
+    titleEl.textContent = `${days.length > 1 ? 'Still Days' : 'Still Day'} · Sol Year ${year}`;
+    subtitleEl.textContent = days.map(d => SolEngine.fmtGreg(d.gregorian)).join(' & ');
+    const todayISO = new Date().toISOString().slice(0, 10);
+    // Pad to center: 3 blanks before, then days, then blanks
+    const totalCols = 7;
+    const blanksBefore = Math.floor((totalCols - days.length) / 2);
+    for (let i = 0; i < blanksBefore; i++) {
+      const b = document.createElement('div');
+      b.className = 'calendar-day';
+      b.style.visibility = 'hidden';
+      gridEl.appendChild(b);
+    }
+    days.forEach(d => {
+      const cell = document.createElement('div');
+      const isToday = d.gregorian.toISOString().slice(0, 10) === todayISO;
+      cell.className = 'calendar-day' + (isToday ? ' today' : '');
+      cell.textContent = d.dayInYear === 365 ? '★' : '✦';
+      cell.title = `${d.label}, Sol Year ${year} = ${SolEngine.fmtGreg(d.gregorian)}`;
+      cell.style.fontWeight = '600';
+      gridEl.appendChild(cell);
+    });
+  };
+
+  // State: start at the month containing today.
+  const today = SolEngine.fromGregorian(new Date());
+  let current = today.special
+    ? { kind: 'appendix', year: today.year }
+    : { kind: 'month', year: today.year, monthIndex: today.monthIndex };
+
+  const render = () => {
+    if (current.kind === 'appendix') renderAppendix(current.year);
+    else renderMonth(current.year, current.monthIndex);
   };
 
   const navigate = (delta) => {
-    let m = current.monthIndex + delta;
-    let y = current.anchorYear;
-    // Months 0..12 are normal Sol months; 13 = Still Day(s) appendix.
-    if (m > 13) { m = 0; y += 1; }
-    if (m < 0)  { m = 13; y -= 1; }
-    current = { monthIndex: m, anchorYear: y };
-    render(current.monthIndex, current.anchorYear);
+    if (current.kind === 'month') {
+      let m = current.monthIndex + delta;
+      let y = current.year;
+      if (m > 12) { current = { kind: 'appendix', year: y }; }
+      else if (m < 0) { current = { kind: 'appendix', year: y - 1 }; }
+      else { current = { kind: 'month', year: y, monthIndex: m }; }
+    } else {
+      // appendix → next year's April, or previous year's March
+      if (delta > 0) current = { kind: 'month', year: current.year + 1, monthIndex: 0 };
+      else current = { kind: 'month', year: current.year, monthIndex: 12 };
+    }
+    render();
   };
 
   if (prevBtn) prevBtn.addEventListener('click', () => navigate(-1));
   if (nextBtn) nextBtn.addEventListener('click', () => navigate(1));
+  render();
+})();
 
-  render(current.monthIndex, current.anchorYear);
+// ─────────────────────────────────────────────────────────────────────────
+// Sol Calendar Gregorian → Sol lookup widget.
+//
+// Type or pick any Gregorian date, see what it becomes in Sol Calendar.
+// Live conversion as the user types.
+// ─────────────────────────────────────────────────────────────────────────
+(function solLookupWidget() {
+  const input = document.getElementById('solLookupInput');
+  const result = document.getElementById('solLookupResult');
+  if (!input || !result) return;
+
+  const update = () => {
+    if (!input.value) {
+      result.textContent = '';
+      return;
+    }
+    const [y, m, d] = input.value.split('-').map(Number);
+    if (!y || !m || !d) {
+      result.textContent = '';
+      return;
+    }
+    const greg = new Date(y, m - 1, d);
+    if (Number.isNaN(greg.getTime())) {
+      result.textContent = '';
+      return;
+    }
+    const sol = SolEngine.fromGregorian(greg);
+    result.innerHTML =
+      `<div class="sol-lookup-result-main">${SolEngine.fmtSolWithWeekday(sol)}</div>` +
+      `<div class="sol-lookup-result-sub">${SolEngine.fmtGreg(greg)} in the Gregorian calendar</div>`;
+  };
+
+  // Default to today's date.
+  const todayISO = new Date().toISOString().slice(0, 10);
+  if (!input.value) input.value = todayISO;
+  input.addEventListener('input', update);
+  input.addEventListener('change', update);
+  update();
 })();
 
 console.log('%c✨ Sol Calendar Landing Page', 'color: #6c5ce7; font-size: 20px; font-weight: bold;');
