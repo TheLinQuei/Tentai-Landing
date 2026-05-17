@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Privacy Policy — Tentai Technology</title>
+    <link rel="stylesheet" href="/landing/landing.css?v=20260514e">
+    <style>
+        .legal-page { max-width: 820px; margin: 4rem auto; padding: 2rem; line-height: 1.7; }
+        .legal-page h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+        .legal-page h2 { margin-top: 2rem; font-size: 1.4rem; }
+        .legal-page .updated { color: #888; font-size: 0.9rem; margin-bottom: 2rem; }
+        .legal-page .draft-banner {
+            background: rgba(231, 194, 106, 0.15);
+            border: 1px solid #E7C26A;
+            color: #E7C26A;
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .legal-page a { color: #A88CFF; }
+        .legal-page code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="legal-page">
+        <p><a href="/">← Back to Tentai Technology</a></p>
+        <h1>Privacy Policy</h1>
+        <p class="updated">Last updated: 2026-05-17 · Effective: 2026-05-17</p>
+
+        <div class="draft-banner">
+            <strong>Notice:</strong> This document is a working draft and has not yet been reviewed by counsel. The substantive commitments below are accurate to our current implementation; legal phrasing may be revised before the public beta opens. If you have questions in the meantime, email <a href="mailto:contact@tentai.tech">contact@tentai.tech</a>.
+        </div>
+
+        <h2>1. Who we are</h2>
+        <p>Tentai Technology (operator: Shykem) builds Vi (AI assistant), Vigil (Discord port), Visage (worldbuilding codex), and Sol Calendar. This policy covers all of them collectively, unless a product-specific notice supersedes it.</p>
+
+        <h2>2. Data we collect</h2>
+        <ul>
+            <li><strong>Account data</strong> — email address (sign-in), display name, optional canonical name/aliases.</li>
+            <li><strong>Conversation data</strong> — messages you send Vi and Vi's replies, including timestamps and which model produced each reply.</li>
+            <li><strong>Derived memory</strong> — facts and episodes Vi extracts from your conversations so she can remember you across sessions.</li>
+            <li><strong>Per-turn diagnostics</strong> — model selection, latency, content-classifier signals (internal debugging only).</li>
+            <li><strong>Idle state</strong> — Vi's autonomy queue and repo digests if you've enabled the dev integration.</li>
+        </ul>
+        <p>We do <strong>not</strong> collect: voice recordings, payment information, location data beyond what you tell Vi conversationally, advertising identifiers, or biometric data.</p>
+
+        <h2>3. How we use it</h2>
+        <p>Your data is used by Vi, for you, and stays inside Tentai's infrastructure. We do <strong>not</strong> sell your data, share it with advertisers, or use it to train external AI models.</p>
+
+        <h2>4. Where it's stored</h2>
+        <p>PostgreSQL on Google Cloud SQL, region <code>us-central1</code> (Iowa, USA). Encrypted at rest by Google Cloud Platform. Backed up daily. Access is restricted to the operator and authorized service accounts.</p>
+
+        <h2>5. Your rights (GDPR Articles 15 + 17)</h2>
+        <p>Regardless of jurisdiction, every user has the right to access and to erasure.</p>
+        <ul>
+            <li><strong>Export</strong> — <code>POST /me/data-export</code> on the Vi API returns a one-hour download URL containing every per-user record we hold about you (password hashes and session tokens are <em>never</em> included).</li>
+            <li><strong>Delete</strong> — <code>POST /me/data-delete</code> with body <code>{ "confirmation": "DELETE MY DATA" }</code> permanently removes every per-user row. Deletions are immediate at the application layer; Google Cloud backup retention may retain copies for up to 7 days.</li>
+        </ul>
+
+        <h2>6. Retention</h2>
+        <ul>
+            <li><strong>Active accounts:</strong> data retained indefinitely until you exercise erasure.</li>
+            <li><strong>Deleted accounts:</strong> purged immediately; no soft-delete tombstone.</li>
+            <li><strong>Backups:</strong> Google Cloud SQL automated backup retention (currently 7 days) may include deleted data for that window.</li>
+        </ul>
+
+        <h2>7. Cookies</h2>
+        <p>One session cookie: <code>vi_session</code>. HTTP-only, Secure-flagged. Cleared automatically on sign-out or account deletion. We do not use analytics, tracking, or advertising cookies.</p>
+
+        <h2>8. Children</h2>
+        <p>Vi is not designed for users under 13 (US COPPA) or under 16 (EU GDPR without parental consent). We do not knowingly accept signups from minors.</p>
+
+        <h2>9. Changes to this policy</h2>
+        <p>Material changes will be announced on the landing page and via push notification (if you've opted in) at least 14 days before taking effect.</p>
+
+        <h2>10. Contact</h2>
+        <p>Operator: Shykem (Tentai Technology) · <a href="mailto:contact@tentai.tech">contact@tentai.tech</a></p>
+    </div>
+</body>
+</html>

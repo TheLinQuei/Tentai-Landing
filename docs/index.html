@@ -6,6 +6,16 @@
     <title>Tentai Technology — Vi, Vigil, Visage, Sol Calendar</title>
     <meta name="description" content="Tentai Technology builds calm, continuous tools. Vi: a presence across chat, lore, and operations. Vigil: Vi's port into Discord. Visage: the living codex of the Tentai universe. Sol Calendar: dual Ethiopian and Gregorian calendar, offline-first.">
     <meta name="keywords" content="Tentai Technology, Vi, Vigil, Visage, Sol Calendar, AI presence, Ethiopian calendar, Discord bot">
+
+    <!-- IP / Copyright / AI training opt-out -->
+    <meta name="author" content="Shykem (Tentai Technology)">
+    <meta name="copyright" content="© 2026 Tentai Technology. All rights reserved.">
+    <meta name="rights" content="https://tentaitech.com/license.html">
+    <!-- noai / noimageai: emerging standard, respected by some scrapers -->
+    <meta name="robots" content="noai, noimageai, noml">
+    <!-- TDM Reservation Protocol (W3C) — explicit machine-readable opt-out from text & data mining -->
+    <meta name="tdm-reservation" content="1">
+    <meta name="tdm-policy" content="https://tentaitech.com/license.html">
         <!-- Cache Control: Tell CDNs not to cache HTML aggressively -->
     <meta http-equiv="Cache-Control" content="max-age=300, must-revalidate">
         <!-- Open Graph -->
@@ -245,7 +255,7 @@
                     <div class="product-card-icon">📜</div>
                     <h3>Visage</h3>
                     <p>The living codex of the Tentai universe — edit canon, ask Vi about it.</p>
-                    <a href="#projects" class="showcase-link">Open the Codex →</a>
+                    <a href="https://visage.tentaitech.com" class="showcase-link">Open the Codex →</a>
                 </div>
             </div>
         </div>
@@ -351,10 +361,10 @@
                     <p>The living codex of the Tentai universe. Edit characters, races, eternals, and chronicles — then ask Vi about them as she'd already know them.</p>
                     <div class="project-tags">
                         <span>Codex</span>
-                        <span>Single User</span>
+                        <span>Multi-user</span>
                         <span>Vi-aware</span>
                     </div>
-                    <a href="#about" class="btn btn-small">Coming soon</a>
+                    <a href="https://visage.tentaitech.com" class="btn btn-small">Open Visage →</a>
                 </div>
             </div>
         </div>
@@ -596,7 +606,32 @@
                     </p>
                 </div>
 
-                <div class="about-cta">
+                <!-- Founder Block -->
+                <div class="founder-block" style="margin-top:4rem; padding:2.5rem; background:rgba(168,140,255,0.06); border:1px solid rgba(168,140,255,0.2); border-radius:16px;">
+                    <div style="display:flex; flex-wrap:wrap; align-items:flex-start; gap:2rem;">
+                        <div style="flex:0 0 auto; width:120px; height:120px; border-radius:50%; background:linear-gradient(135deg, #E7C26A 0%, #A88CFF 60%, #6c5ce7 100%); display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:700; color:white; box-shadow:0 8px 24px rgba(108, 92, 231, 0.4);">
+                            S
+                        </div>
+                        <div style="flex:1; min-width:280px;">
+                            <h3 style="margin:0 0 0.25rem 0; font-size:1.5rem;">Shykem</h3>
+                            <p style="margin:0 0 1rem 0; color:#A88CFF; font-weight:600;">Founder &amp; Sole Engineer, Tentai Technology</p>
+                            <p style="margin:0 0 1rem 0; line-height:1.7;">
+                                Tentai is a solo build. Every line of code, every persona decision, every brand mark on this page comes from one person with one vision: tools that feel <em>continuous</em> &mdash; that remember you, that don't forget who you are between sessions, that respect your attention instead of farming it.
+                            </p>
+                            <p style="margin:0 0 1rem 0; line-height:1.7;">
+                                Vi started as an experiment in giving an AI real memory and a real identity instead of treating it as a stateless answer machine. Vigil came next, because the same presence should reach Discord without becoming a different bot. Visage holds the worldbuilding that Vi knows. Sol Calendar was the first public surface &mdash; a calendar app that exists because nobody else made one that respected both Ethiopian and Gregorian time without ads, telemetry, or a subscription.
+                            </p>
+                            <p style="margin:0 0 1rem 0; line-height:1.7;">
+                                The throughline: <strong>build what should exist, and ship it with the discipline a team of fifty would have.</strong>
+                            </p>
+                            <p style="margin:0; color:#888; font-size:0.95rem;">
+                                <a href="mailto:contact@tentai.tech" style="color:#A88CFF;">contact@tentai.tech</a> &middot; <a href="https://github.com/TheLinQuei" target="_blank" style="color:#A88CFF;">GitHub</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-cta" style="margin-top:3rem;">
                     <a href="#access" class="btn btn-primary">
                         Get Vi
                     </a>
@@ -655,14 +690,18 @@
                     <div class="footer-column">
                         <h4>Legal</h4>
                         <a href="/privacy.html">Privacy Policy</a>
-                        <a href="https://github.com/TheLinQuei/tentai-landing/blob/main/LICENSE">License</a>
+                        <a href="/terms.html">Terms of Use</a>
+                        <a href="/license.html">License &amp; IP</a>
                     </div>
                 </div>
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2026 Tentai Technology. All rights reserved.</p>
-                <p class="footer-version">Sol Calendar v1.0 · Released January 2026</p>
+                <p>&copy; 2026 Tentai Technology / Shykem. All rights reserved.</p>
+                <p style="font-size:0.85rem; opacity:0.7; margin-top:0.5rem;">
+                    Tentai, Vi, Vigil, Visage, and Sol Calendar are trademarks of Tentai Technology. Worldbuilding canon &mdash; including character names, races, eternals, chronicles, and proprietary terminology &mdash; is protected creative IP. <strong>Not licensed for AI/ML training.</strong> See <a href="/license.html" style="color:#A88CFF;">License</a>.
+                </p>
+                <p class="footer-version">Sol Calendar v1.0 &middot; Released January 2026</p>
             </div>
         </div>
     </footer>
