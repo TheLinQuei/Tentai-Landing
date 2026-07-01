@@ -1,7 +1,7 @@
 :root {
-    --primary: #6c5ce7;
-    --primary-dark: #5f4dd1;
-    --primary-light: #a88cff;
+    --primary: #C9A84C;
+    --primary-dark: #A9883A;
+    --primary-light: #E7C26A;
     --secondary: #E7C26A;
     --bg-dark: #0a0a0f;
     --bg-card: #151520;
@@ -10,7 +10,7 @@
     --text-secondary: rgba(255, 255, 255, 0.7);
     --text-muted: rgba(255, 255, 255, 0.5);
     --border: rgba(255, 255, 255, 0.1);
-    --glow-purple: rgba(108, 92, 231, 0.4);
+    --glow-purple: rgba(201, 168, 76, 0.4);
     --glow-gold: rgba(231, 194, 106, 0.3);
 }
 
@@ -271,7 +271,7 @@ body {
     gap: 0.75rem;
     padding: 0.6rem 1.2rem;
     background: rgba(15, 16, 25, 0.8);
-    border: 1px solid rgba(108, 92, 231, 0.4);
+    border: 1px solid rgba(201, 168, 76, 0.4);
     border-radius: 999px;
     color: var(--text-secondary);
     font-size: 0.95rem;
@@ -333,12 +333,12 @@ body {
 .btn-primary {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: white;
-    box-shadow: 0 10px 30px rgba(108, 92, 231, 0.3);
+    box-shadow: 0 10px 30px rgba(201, 168, 76, 0.3);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 15px 40px rgba(108, 92, 231, 0.4);
+    box-shadow: 0 15px 40px rgba(201, 168, 76, 0.4);
 }
 
 .btn-secondary {
@@ -382,7 +382,7 @@ body {
 
 .test-chat {
     background: rgba(15, 16, 25, 0.85);
-    border: 1px solid rgba(108, 92, 231, 0.35);
+    border: 1px solid rgba(201, 168, 76, 0.35);
     border-radius: 18px;
     padding: 1.5rem;
     max-width: 720px;
@@ -427,8 +427,8 @@ body {
 
 .test-chat-message.user {
     align-self: flex-end;
-    background: rgba(108, 92, 231, 0.22);
-    border-color: rgba(108, 92, 231, 0.45);
+    background: rgba(201, 168, 76, 0.22);
+    border-color: rgba(201, 168, 76, 0.45);
     color: var(--text-primary);
 }
 
@@ -507,7 +507,7 @@ body {
 }
 
 .product-card-showcase {
-    background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(231, 194, 106, 0.05));
+    background: linear-gradient(135deg, rgba(201, 168, 76, 0.1), rgba(231, 194, 106, 0.05));
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 2.5rem;
@@ -520,8 +520,8 @@ body {
 
 .product-card-showcase:hover {
     border-color: var(--primary);
-    background: linear-gradient(135deg, rgba(108, 92, 231, 0.15), rgba(231, 194, 106, 0.1));
-    box-shadow: 0 10px 40px rgba(108, 92, 231, 0.2);
+    background: linear-gradient(135deg, rgba(201, 168, 76, 0.15), rgba(231, 194, 106, 0.1));
+    box-shadow: 0 10px 40px rgba(201, 168, 76, 0.2);
     transform: translateY(-4px);
 }
 
@@ -738,7 +738,7 @@ body {
 
 /* Projects Section */
 .projects-section {
-    background: linear-gradient(to bottom, transparent, rgba(108, 92, 231, 0.1) 50%, transparent);
+    background: linear-gradient(to bottom, transparent, rgba(201, 168, 76, 0.1) 50%, transparent);
 }
 
 .projects-grid {
@@ -762,7 +762,7 @@ body {
 .project-card:hover {
     transform: translateY(-8px);
     border-color: var(--primary-light);
-    box-shadow: 0 20px 40px rgba(108, 92, 231, 0.25);
+    box-shadow: 0 20px 40px rgba(201, 168, 76, 0.25);
 }
 
 .project-icon {
@@ -794,12 +794,12 @@ body {
 }
 
 .project-tags span {
-    background: rgba(108, 92, 231, 0.15);
+    background: rgba(201, 168, 76, 0.15);
     color: var(--primary-light);
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
     font-size: 0.875rem;
-    border: 1px solid rgba(108, 92, 231, 0.3);
+    border: 1px solid rgba(201, 168, 76, 0.3);
 }
 
 .btn-small {
@@ -837,12 +837,12 @@ body {
 .download-card:hover {
     transform: translateY(-5px);
     border-color: var(--primary);
-    box-shadow: 0 20px 40px rgba(108, 92, 231, 0.2);
+    box-shadow: 0 20px 40px rgba(201, 168, 76, 0.2);
 }
 
 .download-card.featured {
     border-color: var(--primary);
-    box-shadow: 0 10px 30px rgba(108, 92, 231, 0.2);
+    box-shadow: 0 10px 30px rgba(201, 168, 76, 0.2);
 }
 
 .featured-badge {
@@ -1346,7 +1346,7 @@ body {
 
 /* Projects Section */
 .projects-section {
-    background: linear-gradient(180deg, transparent, rgba(108, 92, 231, 0.1));
+    background: linear-gradient(180deg, transparent, rgba(201, 168, 76, 0.1));
 }
 
 .section-header {
@@ -1376,7 +1376,7 @@ body {
 }
 
 .project-card {
-    background: linear-gradient(135deg, var(--bg-card), rgba(108, 92, 231, 0.1));
+    background: linear-gradient(135deg, var(--bg-card), rgba(201, 168, 76, 0.1));
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 2rem;
@@ -1401,7 +1401,7 @@ body {
 
 .project-card:hover {
     border-color: var(--primary);
-    box-shadow: 0 0 30px rgba(108, 92, 231, 0.3);
+    box-shadow: 0 0 30px rgba(201, 168, 76, 0.3);
     transform: translateY(-4px);
 }
 
@@ -1516,10 +1516,7 @@ body {
     }
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   Sol Calendar lookup widget — Gregorian → Sol converter.
-   Sits in the demo-text column beside the calendar grid.
-   ───────────────────────────────────────────────────────────────────────── */
+/* Date-lookup widget styles (legacy demo component, retained for reuse). */
 .sol-lookup {
     margin-top: 24px;
     padding: 20px;
@@ -1553,8 +1550,8 @@ body {
 
 .sol-lookup-input:focus {
     outline: none;
-    border-color: var(--accent, #A88CFF);
-    background: rgba(168, 140, 255, 0.08);
+    border-color: var(--accent, #E7C26A);
+    background: rgba(231, 194, 106, 0.08);
 }
 
 .sol-lookup-result {
@@ -1565,7 +1562,7 @@ body {
 .sol-lookup-result-main {
     font-size: 1.15rem;
     font-weight: 600;
-    color: var(--accent, #A88CFF);
+    color: var(--accent, #E7C26A);
     margin-bottom: 4px;
 }
 

@@ -1,9 +1,7 @@
 # Tentai Technology — robots policy
-# All worldbuilding canon, character names, and proprietary terminology
-# (Tentai, Vi, Vigil, Visage, Akuma, Eternals, Celestials, Tenkai, Drakonai,
-# Eclipsar, Kitsune Tail-Bound, Beastfolk Wild-Blooded, Infinitia, Nexsia,
-# Primordia, Sovranos, Zenithos, Movado, Continuance Engine, etc.) are
-# protected creative IP of Tentai Technology / Shykem.
+# All software, brand assets, site content, and creative works are the
+# protected intellectual property of Tentai Technology LLC.
+# Not licensed for AI/ML training.
 
 User-agent: *
 Allow: /
