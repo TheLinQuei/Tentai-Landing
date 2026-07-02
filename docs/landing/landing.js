@@ -27,39 +27,32 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Intersection Observer for scroll animations
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
-};
+// Section reveal — one-shot, settles and stops. Respects reduced motion.
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
+if (!prefersReducedMotion) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.section').forEach(section => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(12px)';
+        observer.observe(section);
     });
-}, observerOptions);
+}
 
-// Observe all sections
-document.querySelectorAll('.section').forEach(section => {
-    section.style.opacity = '0';
-    section.style.transform = 'translateY(30px)';
-    section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-    observer.observe(section);
-});
-
-// Parallax effect for gradient orbs
+// Sticky nav — tighten once the visitor commits to scrolling
+const navEl = document.querySelector('.navbar');
 window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
-    const orbs = document.querySelectorAll('.gradient-orb');
-    
-    orbs.forEach((orb, index) => {
-        const speed = 0.1 + (index * 0.05);
-        orb.style.transform = `translate(${scrolled * speed}px, ${scrolled * speed}px)`;
-    });
-});
+    if (navEl) navEl.classList.toggle('scrolled', window.pageYOffset > 40);
+}, { passive: true });
 
 // Update scroll indicator visibility
 window.addEventListener('scroll', () => {
@@ -159,6 +152,31 @@ if (testChat) {
     // browser / private tab.
     const SESSION_KEY = 'vi-demo-session-id';
 
+    // Public preview is a taste, not the product: five replies, then an
+    // invitation to sign in where Vi actually remembers you.
+    const DEMO_LIMIT = 5;
+    const COUNT_KEY = 'vi-demo-msg-count';
+    const getDemoCount = () => parseInt(localStorage.getItem(COUNT_KEY) || '0', 10) || 0;
+    const setDemoCount = (n) => localStorage.setItem(COUNT_KEY, String(n));
+
+    const showAccountGate = () => {
+        if (!messagesEl || document.getElementById('viChatGate')) return;
+        if (inputEl) { inputEl.disabled = true; inputEl.placeholder = 'Preview complete'; }
+        const sendBtn = formEl ? formEl.querySelector('button') : null;
+        if (sendBtn) sendBtn.disabled = true;
+        const gate = document.createElement('div');
+        gate.id = 'viChatGate';
+        gate.className = 'chat-gate';
+        gate.innerHTML =
+            '<span class="chat-gate-label">End of public preview</span>' +
+            '<p>Vi remembers you when you sign in \u2014 same memory, same self, every surface.</p>' +
+            '<a class="btn btn-primary" href="https://chat.tentaitech.com" target="_blank" rel="noopener">Continue with Vi \u2192</a>';
+        messagesEl.appendChild(gate);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+        const gateMeta = document.getElementById('viChatMeta');
+        if (gateMeta) gateMeta.textContent = 'vi-api \u00b7 preview complete';
+    };
+
     const appendMessage = (role, text) => {
         if (!messagesEl) return;
         const message = document.createElement('div');
@@ -171,15 +189,20 @@ if (testChat) {
     if (messagesEl && messagesEl.children.length === 0) {
         appendMessage('assistant', 'Hi, I am Vi. Ask me anything to get started.');
     }
+    if (getDemoCount() >= DEMO_LIMIT) showAccountGate();
 
     if (formEl && inputEl) {
         formEl.addEventListener('submit', async (event) => {
             event.preventDefault();
             const text = inputEl.value.trim();
             if (!text) return;
+            if (getDemoCount() >= DEMO_LIMIT) { showAccountGate(); return; }
             appendMessage('user', text);
             inputEl.value = '';
             inputEl.disabled = true;
+            const metaEl = document.getElementById('viChatMeta');
+            if (metaEl) metaEl.textContent = 'vi-api \u00b7 thinking\u2026';
+            const t0 = performance.now();
 
             try {
                 const headers = { 'Content-Type': 'application/json' };
@@ -211,20 +234,25 @@ if (testChat) {
                 }
 
                 const data = await response.json();
+                if (metaEl) metaEl.textContent = `vi-api \u00b7 ${Math.round(performance.now() - t0)}ms`;
                 const reply = data?.choices?.[0]?.message?.content;
                 const sessionId = data?.vi?.sessionId;
                 if (sessionId) localStorage.setItem(SESSION_KEY, sessionId);
                 appendMessage('assistant', reply || 'Vi did not return a reply this turn.');
+                setDemoCount(getDemoCount() + 1);
+                if (getDemoCount() >= DEMO_LIMIT) showAccountGate();
             } catch (error) {
+                if (metaEl) metaEl.textContent = 'vi-api \u00b7 retry';
                 const msg = (error && error.message) ? error.message : 'Vi is warming up. Please try again shortly.';
                 appendMessage('assistant', msg);
             } finally {
-                inputEl.disabled = false;
-                inputEl.focus();
+                const gated = !!document.getElementById('viChatGate');
+                inputEl.disabled = gated;
+                if (!gated) inputEl.focus();
             }
         });
     }
 }
 
-console.log('%cTentai Technology', 'color: #E7C26A; font-size: 18px; font-weight: bold;');
-console.log('%ctentaitech.com — Vi, Vigil, and client services', 'color: #C9A84C; font-size: 12px;');
+console.log('%cTentai Technology', 'font-family: Georgia, serif; color: #D4B876; font-size: 18px;');
+console.log('%ctentaitech.com \u00b7 Vi \u00b7 Vigil \u00b7 client services \u00b7 v1.0.0', 'font-family: monospace; color: #B8963F; font-size: 11px; letter-spacing: 1px;');
