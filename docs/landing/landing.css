@@ -321,7 +321,8 @@ a { color: inherit; text-decoration: none; }
     pointer-events: none;
 }
 
-.hero > * { position: relative; z-index: 1; }
+/* :not(.navbar) — the fixed nav must NOT be pulled back into the flow */
+.hero > *:not(.navbar) { position: relative; z-index: 1; }
 .hero .navbar { z-index: 200; }
 
 .hero-content {
