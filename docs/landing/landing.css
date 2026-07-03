@@ -221,10 +221,12 @@ a { color: inherit; text-decoration: none; }
 .hero-textlink:hover { color: var(--text-primary); }
 .hero-textlink:hover::after { transform: scaleX(1); transform-origin: left; }
 
-/* ── Navbar — sticky glass, hairline bottom ───────────────────────────── */
+/* ── Navbar — fixed glass, hairline bottom, always with you ───────────── */
 .navbar {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 200;
     padding: 1.1rem 0;
     background: rgba(13, 11, 8, 0.72);
@@ -325,9 +327,12 @@ a { color: inherit; text-decoration: none; }
 .hero-content {
     max-width: 880px;
     margin: 0 auto;
-    padding: 7.5rem 2rem 5rem;
+    padding: 9.5rem 2rem 4rem;
     text-align: center;
 }
+
+/* Anchor targets clear the fixed nav */
+.section, .hero-console { scroll-margin-top: 96px; }
 
 /* Status-line badge — a machine heartbeat, not a marketing pill */
 .hero-badge {
@@ -406,8 +411,11 @@ a { color: inherit; text-decoration: none; }
     justify-content: center;
     gap: 2rem;
     flex-wrap: wrap;
-    margin-bottom: 4.5rem;
+    margin-bottom: 4rem;
 }
+
+/* The console is part of the hero — the demo IS the pitch */
+.hero-console { margin-bottom: 4.5rem; text-align: left; }
 
 .hero-stats {
     display: flex;
@@ -438,7 +446,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* Hero entrance — one choreographed settle, then stillness */
-.hero-badge, .hero-title, .hero-description, .hero-cta, .hero-stats {
+.hero-badge, .hero-title, .hero-description, .hero-cta, .hero-console, .hero-stats {
     opacity: 0;
     animation: settleIn 700ms var(--ease-lux) forwards;
 }
@@ -446,7 +454,8 @@ a { color: inherit; text-decoration: none; }
 .hero-title { animation-delay: 60ms; }
 .hero-description { animation-delay: 140ms; animation-duration: 500ms; }
 .hero-cta { animation-delay: 240ms; animation-duration: 500ms; }
-.hero-stats { animation-delay: 320ms; animation-duration: 500ms; }
+.hero-console { animation-delay: 320ms; animation-duration: 600ms; }
+.hero-stats { animation-delay: 420ms; animation-duration: 500ms; }
 
 @keyframes settleIn {
     from { opacity: 0; transform: translateY(16px); }
@@ -454,8 +463,6 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ── Vi console — the proof-of-product, styled as an instrument ───────── */
-.try-vi { padding: 5rem 0 7rem; }
-
 .test-chat {
     max-width: 680px;
     margin: 0 auto;
@@ -1125,5 +1132,5 @@ a { color: inherit; text-decoration: none; }
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
     }
-    .hero-badge, .hero-title, .hero-description, .hero-cta, .hero-stats { opacity: 1; }
+    .hero-badge, .hero-title, .hero-description, .hero-cta, .hero-console, .hero-stats { opacity: 1; }
 }
