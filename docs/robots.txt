@@ -1,6 +1,6 @@
 # Tentai Technology — robots policy
 # All software, brand assets, site content, and creative works are the
-# protected intellectual property of Tentai Technology LLC.
+# protected intellectual property of Tentai Technology LC.
 # Not licensed for AI/ML training.
 
 User-agent: *
