@@ -653,6 +653,8 @@ a { color: inherit; text-decoration: none; }
     color: var(--text-faint);
     margin-top: 1rem;
 }
+.test-chat-note a { color: #D4B876; text-decoration: none; }
+.test-chat-note a:hover { text-decoration: underline; }
 
 /* ── Scroll indicator — recedes, doesn't perform ──────────────────────── */
 .scroll-indicator {

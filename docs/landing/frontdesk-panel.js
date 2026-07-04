@@ -13,10 +13,6 @@
     const apiBase = script.dataset.apiBase || 'https://vi-api-zr7hl3nzja-uc.a.run.app';
     const apiKey = script.dataset.apiKey || '';
     const SESSION_KEY = 'vi-demo-session-id';
-    const COUNT_KEY = 'vi-demo-msg-count';
-    const DEMO_LIMIT = 5;
-    const getCount = () => parseInt(localStorage.getItem(COUNT_KEY) || '0', 10) || 0;
-    const setCount = (n) => localStorage.setItem(COUNT_KEY, String(n));
 
     const css = `
     .vifd-bubble{position:fixed;right:1.25rem;bottom:1.25rem;z-index:9000;width:56px;height:56px;border-radius:50%;
@@ -81,7 +77,7 @@
         '<form class="vifd-form" autocomplete="off">' +
         '<input type="text" placeholder="Ask about services, pricing, or booking..." aria-label="Message the front desk">' +
         '<button type="submit">Send</button></form>' +
-        '<p class="vifd-note">Public preview · 5 messages · visitors are not remembered</p>';
+        '<p class="vifd-note"><a href="#" class="vifd-lead-link">Leave contact details →</a></p>';
     document.body.appendChild(bubble);
     document.body.appendChild(panel);
 
@@ -98,19 +94,25 @@
         msgsEl.scrollTop = msgsEl.scrollHeight;
     };
 
-    const showGate = () => {
+    const showGate = (reason = 'manual') => {
         if (panel.querySelector('.vifd-gate')) return;
-        inputEl.disabled = true;
-        inputEl.placeholder = 'Session concluded';
-        sendBtn.disabled = true;
+        if (reason === 'limit') {
+            inputEl.disabled = true;
+            inputEl.placeholder = 'Session concluded';
+            sendBtn.disabled = true;
+        }
         const gate = document.createElement('div');
         gate.className = 'vifd-gate';
         gate.innerHTML =
-            '<span class="vifd-gate-label">End of public preview</span>' +
-            'Your demo session has concluded. To book a consultation or discuss integrating Tentai Tech’s services, please sign in or leave your contact details.' +
+            (reason === 'limit'
+                ? '<span class="vifd-gate-label">End of public preview</span>' +
+                  'Your demo session has concluded. To book a consultation or discuss integrating Tentai Tech’s services, please sign in or leave your contact details.'
+                : '<span class="vifd-gate-label">Leave your contact details</span>' +
+                  'To book a consultation or discuss integrating Tentai Tech’s services, leave your details and Shykem will reach out personally.') +
             '<form autocomplete="off">' +
             '<input name="name" type="text" placeholder="Name (optional)" maxlength="120">' +
-            '<input name="email" type="email" placeholder="Email" required maxlength="254">' +
+            '<input name="email" type="email" placeholder="Email" maxlength="254">' +
+            '<input name="phone" type="tel" placeholder="Phone" maxlength="40">' +
             '<textarea name="note" rows="2" placeholder="What do you need? (optional)" maxlength="2000"></textarea>' +
             '<input name="company" class="vifd-hp" type="text" tabindex="-1" aria-hidden="true">' +
             '<button type="submit">Leave contact details</button>' +
@@ -122,6 +124,10 @@
         leadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const fd = new FormData(leadForm);
+            if (!String(fd.get('email') || '').trim() && !String(fd.get('phone') || '').trim()) {
+                leadForm.querySelector('input[name="email"]').focus();
+                return;
+            }
             const btn = leadForm.querySelector('button');
             btn.disabled = true; btn.textContent = 'Sending…';
             try {
@@ -130,12 +136,13 @@
                     headers: { 'Content-Type': 'application/json', ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}) },
                     body: JSON.stringify({
                         name: fd.get('name') || '', email: fd.get('email') || '',
+                        phone: fd.get('phone') || '',
                         note: fd.get('note') || '', company: fd.get('company') || '',
                         source: `tentaitech.com · side panel · ${location.pathname}`,
                     }),
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                leadForm.outerHTML = '<p style="margin-top:.7rem">Received. Shykem will follow up at the email you provided.</p>';
+                leadForm.outerHTML = '<p style="margin-top:.7rem">Received. Shykem will reach out personally.</p>';
             } catch (_) {
                 btn.disabled = false; btn.textContent = 'Leave contact details';
                 if (!leadForm.querySelector('.vifd-err')) {
@@ -154,10 +161,13 @@
         if (!greeted) {
             greeted = true;
             append('assistant', 'Tentai front desk — the public interface of Vi. Ask about services, timelines, or booking a consultation.');
-            if (getCount() >= DEMO_LIMIT) showGate();
         }
         if (!inputEl.disabled) inputEl.focus();
     };
+    panel.querySelector('.vifd-lead-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        showGate('manual');
+    });
     bubble.addEventListener('click', () => {
         if (panel.classList.contains('open')) panel.classList.remove('open');
         else openPanel();
@@ -168,7 +178,6 @@
         e.preventDefault();
         const text = inputEl.value.trim();
         if (!text) return;
-        if (getCount() >= DEMO_LIMIT) { showGate(); return; }
         append('user', text);
         inputEl.value = '';
         inputEl.disabled = true;
@@ -183,15 +192,19 @@
             });
             if (!res.ok) {
                 let detail = '';
-                try { detail = (await res.json())?.error?.message || ''; } catch (_) { /* ignore */ }
+                let code = '';
+                try {
+                    const errBody = await res.json();
+                    detail = errBody?.error?.message || '';
+                    code = errBody?.error?.code || '';
+                } catch (_) { /* ignore */ }
+                if (code === 'SIGNUP_REQUIRED' || res.status === 402) { showGate('limit'); return; }
                 throw new Error(detail || `The front desk returned HTTP ${res.status}.`);
             }
             const data = await res.json();
             const sessionId = data?.vi?.sessionId;
             if (sessionId) localStorage.setItem(SESSION_KEY, sessionId);
             append('assistant', data?.choices?.[0]?.message?.content || 'No reply this turn — please try again.');
-            setCount(getCount() + 1);
-            if (getCount() >= DEMO_LIMIT) showGate();
         } catch (err) {
             append('assistant', (err && err.message) ? err.message : 'The front desk is starting up. Please try again shortly.');
         } finally {

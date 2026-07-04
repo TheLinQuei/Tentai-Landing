@@ -152,28 +152,31 @@ if (testChat) {
     // browser / private tab.
     const SESSION_KEY = 'vi-demo-session-id';
 
-    // Public preview: five replies, then the front-desk gate. The gate copy is
-    // Vi's own authored wording (PUBLIC_TIER_CHARTER, 2026-07-03) \u2014 the public
-    // tier never promises memory or a personal relationship to visitors.
-    const DEMO_LIMIT = 5;
-    const COUNT_KEY = 'vi-demo-msg-count';
-    const getDemoCount = () => parseInt(localStorage.getItem(COUNT_KEY) || '0', 10) || 0;
-    const setDemoCount = (n) => localStorage.setItem(COUNT_KEY, String(n));
-
-    const showAccountGate = () => {
+    // No client-side message cap (owner call, 2026-07-04) \u2014 the server keeps
+    // quiet abuse ceilings. The gate appears only when the server says the
+    // session is done (402) or the visitor asks to leave contact details.
+    // Gate copy for the session-end case is Vi's own authored wording
+    // (PUBLIC_TIER_CHARTER, 2026-07-03).
+    const showAccountGate = (reason = 'manual') => {
         if (!messagesEl || document.getElementById('viChatGate')) return;
-        if (inputEl) { inputEl.disabled = true; inputEl.placeholder = 'Session concluded'; }
-        const sendBtn = formEl ? formEl.querySelector('button') : null;
-        if (sendBtn) sendBtn.disabled = true;
+        if (reason === 'limit') {
+            if (inputEl) { inputEl.disabled = true; inputEl.placeholder = 'Session concluded'; }
+            const sendBtn = formEl ? formEl.querySelector('button') : null;
+            if (sendBtn) sendBtn.disabled = true;
+        }
         const gate = document.createElement('div');
         gate.id = 'viChatGate';
         gate.className = 'chat-gate';
         gate.innerHTML =
-            '<span class="chat-gate-label">End of public preview</span>' +
-            '<p>Your demo session has concluded. To book a consultation or discuss integrating Tentai Tech\u2019s services, please sign in or leave your contact details.</p>' +
+            (reason === 'limit'
+                ? '<span class="chat-gate-label">End of public preview</span>' +
+                  '<p>Your demo session has concluded. To book a consultation or discuss integrating Tentai Tech\u2019s services, please sign in or leave your contact details.</p>'
+                : '<span class="chat-gate-label">Leave your contact details</span>' +
+                  '<p>To book a consultation or discuss integrating Tentai Tech\u2019s services, leave your details and Shykem will reach out personally.</p>') +
             '<form id="viLeadForm" class="lead-form" autocomplete="off">' +
                 '<input name="name" type="text" placeholder="Name (optional)" maxlength="120">' +
-                '<input name="email" type="email" placeholder="Email" required maxlength="254">' +
+                '<input name="email" type="email" placeholder="Email" maxlength="254">' +
+                '<input name="phone" type="tel" placeholder="Phone" maxlength="40">' +
                 '<textarea name="note" rows="2" placeholder="What do you need? (optional)" maxlength="2000"></textarea>' +
                 '<input name="company" class="lead-hp" type="text" tabindex="-1" aria-hidden="true">' +
                 '<button type="submit" class="btn btn-primary">Leave contact details</button>' +
@@ -181,14 +184,20 @@ if (testChat) {
             '<p class="lead-alt"><a href="https://chat.tentaitech.com" target="_blank" rel="noopener">Sign in at chat.tentaitech.com</a> \u00b7 or email <a href="mailto:shykem.middleton@tentaitech.com">shykem.middleton@tentaitech.com</a></p>';
         messagesEl.appendChild(gate);
         messagesEl.scrollTop = messagesEl.scrollHeight;
-        const gateMeta = document.getElementById('viChatMeta');
-        if (gateMeta) gateMeta.textContent = 'vi-api \u00b7 session concluded';
+        if (reason === 'limit') {
+            const gateMeta = document.getElementById('viChatMeta');
+            if (gateMeta) gateMeta.textContent = 'vi-api \u00b7 session concluded';
+        }
 
         const leadForm = document.getElementById('viLeadForm');
         if (leadForm) {
             leadForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
                 const fd = new FormData(leadForm);
+                if (!String(fd.get('email') || '').trim() && !String(fd.get('phone') || '').trim()) {
+                    leadForm.querySelector('input[name="email"]').focus();
+                    return;
+                }
                 const submitBtn = leadForm.querySelector('button');
                 if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending\u2026'; }
                 try {
@@ -201,13 +210,14 @@ if (testChat) {
                         body: JSON.stringify({
                             name: fd.get('name') || '',
                             email: fd.get('email') || '',
+                            phone: fd.get('phone') || '',
                             note: fd.get('note') || '',
                             company: fd.get('company') || '',
                             source: 'tentaitech.com \u00b7 hero console',
                         }),
                     });
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    leadForm.outerHTML = '<p class="lead-confirm">Received. Shykem will follow up at the email you provided.</p>';
+                    leadForm.outerHTML = '<p class="lead-confirm">Received. Shykem will reach out personally.</p>';
                 } catch (_) {
                     if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Leave contact details'; }
                     let err = document.getElementById('viLeadError');
@@ -235,14 +245,21 @@ if (testChat) {
     if (messagesEl && messagesEl.children.length === 0) {
         appendMessage('assistant', 'Tentai front desk — the public interface of Vi. Ask about services, timelines, or booking a consultation.');
     }
-    if (getDemoCount() >= DEMO_LIMIT) showAccountGate();
+    // "Leave contact details" link under the console opens the lead form
+    // without ending the chat.
+    const leadLink = document.getElementById('viLeadLink');
+    if (leadLink) {
+        leadLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showAccountGate('manual');
+        });
+    }
 
     if (formEl && inputEl) {
         formEl.addEventListener('submit', async (event) => {
             event.preventDefault();
             const text = inputEl.value.trim();
             if (!text) return;
-            if (getDemoCount() >= DEMO_LIMIT) { showAccountGate(); return; }
             appendMessage('user', text);
             inputEl.value = '';
             inputEl.disabled = true;
@@ -272,10 +289,17 @@ if (testChat) {
                 if (!response.ok) {
                     // Try to surface the actual error message Vi sent back
                     let detail = '';
+                    let code = '';
                     try {
                         const errBody = await response.json();
                         detail = errBody?.error?.message || '';
+                        code = errBody?.error?.code || '';
                     } catch (_) { /* ignore */ }
+                    // Server-side session ceiling -> show the gate instead of an error.
+                    if (code === 'SIGNUP_REQUIRED' || response.status === 402) {
+                        showAccountGate('limit');
+                        return;
+                    }
                     throw new Error(detail || `The front desk returned HTTP ${response.status}.`);
                 }
 
@@ -285,8 +309,6 @@ if (testChat) {
                 const sessionId = data?.vi?.sessionId;
                 if (sessionId) localStorage.setItem(SESSION_KEY, sessionId);
                 appendMessage('assistant', reply || 'No reply this turn — please try again.');
-                setDemoCount(getDemoCount() + 1);
-                if (getDemoCount() >= DEMO_LIMIT) showAccountGate();
             } catch (error) {
                 if (metaEl) metaEl.textContent = 'vi-api \u00b7 retry';
                 const msg = (error && error.message) ? error.message : 'The front desk is starting up. Please try again shortly.';
