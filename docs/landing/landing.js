@@ -152,8 +152,9 @@ if (testChat) {
     // browser / private tab.
     const SESSION_KEY = 'vi-demo-session-id';
 
-    // Public preview is a taste, not the product: five replies, then an
-    // invitation to sign in where Vi actually remembers you.
+    // Public preview: five replies, then the front-desk gate. The gate copy is
+    // Vi's own authored wording (PUBLIC_TIER_CHARTER, 2026-07-03) \u2014 the public
+    // tier never promises memory or a personal relationship to visitors.
     const DEMO_LIMIT = 5;
     const COUNT_KEY = 'vi-demo-msg-count';
     const getDemoCount = () => parseInt(localStorage.getItem(COUNT_KEY) || '0', 10) || 0;
@@ -161,7 +162,7 @@ if (testChat) {
 
     const showAccountGate = () => {
         if (!messagesEl || document.getElementById('viChatGate')) return;
-        if (inputEl) { inputEl.disabled = true; inputEl.placeholder = 'Preview complete'; }
+        if (inputEl) { inputEl.disabled = true; inputEl.placeholder = 'Session concluded'; }
         const sendBtn = formEl ? formEl.querySelector('button') : null;
         if (sendBtn) sendBtn.disabled = true;
         const gate = document.createElement('div');
@@ -169,12 +170,57 @@ if (testChat) {
         gate.className = 'chat-gate';
         gate.innerHTML =
             '<span class="chat-gate-label">End of public preview</span>' +
-            '<p>Vi remembers you when you sign in \u2014 same memory, same self, every surface.</p>' +
-            '<a class="btn btn-primary" href="https://chat.tentaitech.com" target="_blank" rel="noopener">Continue with Vi \u2192</a>';
+            '<p>Your demo session has concluded. To book a consultation or discuss integrating Tentai Tech\u2019s services, please sign in or leave your contact details.</p>' +
+            '<form id="viLeadForm" class="lead-form" autocomplete="off">' +
+                '<input name="name" type="text" placeholder="Name (optional)" maxlength="120">' +
+                '<input name="email" type="email" placeholder="Email" required maxlength="254">' +
+                '<textarea name="note" rows="2" placeholder="What do you need? (optional)" maxlength="2000"></textarea>' +
+                '<input name="company" class="lead-hp" type="text" tabindex="-1" aria-hidden="true">' +
+                '<button type="submit" class="btn btn-primary">Leave contact details</button>' +
+            '</form>' +
+            '<p class="lead-alt"><a href="https://chat.tentaitech.com" target="_blank" rel="noopener">Sign in at chat.tentaitech.com</a> \u00b7 or email <a href="mailto:shykem.middleton@tentaitech.com">shykem.middleton@tentaitech.com</a></p>';
         messagesEl.appendChild(gate);
         messagesEl.scrollTop = messagesEl.scrollHeight;
         const gateMeta = document.getElementById('viChatMeta');
-        if (gateMeta) gateMeta.textContent = 'vi-api \u00b7 preview complete';
+        if (gateMeta) gateMeta.textContent = 'vi-api \u00b7 session concluded';
+
+        const leadForm = document.getElementById('viLeadForm');
+        if (leadForm) {
+            leadForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const fd = new FormData(leadForm);
+                const submitBtn = leadForm.querySelector('button');
+                if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending\u2026'; }
+                try {
+                    const res = await fetch(`${apiBase}/frontdesk/lead`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {}),
+                        },
+                        body: JSON.stringify({
+                            name: fd.get('name') || '',
+                            email: fd.get('email') || '',
+                            note: fd.get('note') || '',
+                            company: fd.get('company') || '',
+                            source: 'tentaitech.com \u00b7 hero console',
+                        }),
+                    });
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    leadForm.outerHTML = '<p class="lead-confirm">Received. Shykem will follow up at the email you provided.</p>';
+                } catch (_) {
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Leave contact details'; }
+                    let err = document.getElementById('viLeadError');
+                    if (!err) {
+                        err = document.createElement('p');
+                        err.id = 'viLeadError';
+                        err.className = 'lead-error';
+                        leadForm.appendChild(err);
+                    }
+                    err.textContent = 'Could not send \u2014 please email shykem.middleton@tentaitech.com instead.';
+                }
+            });
+        }
     };
 
     const appendMessage = (role, text) => {
@@ -187,7 +233,7 @@ if (testChat) {
     };
 
     if (messagesEl && messagesEl.children.length === 0) {
-        appendMessage('assistant', 'Hi, I am Vi. Ask me anything to get started.');
+        appendMessage('assistant', 'Tentai front desk — the public interface of Vi. Ask about services, timelines, or booking a consultation.');
     }
     if (getDemoCount() >= DEMO_LIMIT) showAccountGate();
 
@@ -230,7 +276,7 @@ if (testChat) {
                         const errBody = await response.json();
                         detail = errBody?.error?.message || '';
                     } catch (_) { /* ignore */ }
-                    throw new Error(detail || `Vi returned HTTP ${response.status}.`);
+                    throw new Error(detail || `The front desk returned HTTP ${response.status}.`);
                 }
 
                 const data = await response.json();
@@ -238,12 +284,12 @@ if (testChat) {
                 const reply = data?.choices?.[0]?.message?.content;
                 const sessionId = data?.vi?.sessionId;
                 if (sessionId) localStorage.setItem(SESSION_KEY, sessionId);
-                appendMessage('assistant', reply || 'Vi did not return a reply this turn.');
+                appendMessage('assistant', reply || 'No reply this turn — please try again.');
                 setDemoCount(getDemoCount() + 1);
                 if (getDemoCount() >= DEMO_LIMIT) showAccountGate();
             } catch (error) {
                 if (metaEl) metaEl.textContent = 'vi-api \u00b7 retry';
-                const msg = (error && error.message) ? error.message : 'Vi is warming up. Please try again shortly.';
+                const msg = (error && error.message) ? error.message : 'The front desk is starting up. Please try again shortly.';
                 appendMessage('assistant', msg);
             } finally {
                 const gated = !!document.getElementById('viChatGate');
