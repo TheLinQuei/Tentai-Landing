@@ -168,11 +168,66 @@
         e.preventDefault();
         showGate('manual');
     });
-    bubble.addEventListener('click', () => {
-        if (panel.classList.contains('open')) panel.classList.remove('open');
-        else openPanel();
+
+    // Any element with data-open-frontdesk opens the panel — the hero
+    // "Talk to Vi" CTA, the nav "Chat" links, footer links.
+    document.addEventListener('click', (e) => {
+        const trigger = e.target.closest('[data-open-frontdesk]');
+        if (!trigger) return;
+        e.preventDefault();
+        openPanel();
     });
-    panel.querySelector('.vifd-close').addEventListener('click', () => panel.classList.remove('open'));
+
+    // Auto-open: once per visitor per 7 days, on real engagement (45% scroll
+    // or 30s on page), never again in-visit after a manual close. The front
+    // desk introduces itself without becoming the widget people learn to hate.
+    const AUTO_KEY = 'vifd-auto-opened-at';
+    let manuallyClosed = false;
+    let autoArmed = true;
+    const maybeAutoOpen = () => {
+        if (!autoArmed || manuallyClosed || panel.classList.contains('open')) return;
+        const last = parseInt(localStorage.getItem(AUTO_KEY) || '0', 10);
+        if (Date.now() - last < 7 * 24 * 60 * 60 * 1000) return;
+        autoArmed = false;
+        localStorage.setItem(AUTO_KEY, String(Date.now()));
+        openPanel();
+    };
+    // Engagement signal: reaching the Services section (same IO pattern the
+    // site's section reveals use). Pages without #services fall back to a
+    // 45% scroll-depth check; a 30s dwell timer backstops both.
+    const servicesEl = document.getElementById('services');
+    if (servicesEl && 'IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+            if (entries.some((en) => en.isIntersecting)) {
+                io.disconnect();
+                maybeAutoOpen();
+            }
+        }, { threshold: 0.2 });
+        io.observe(servicesEl);
+    } else {
+        const onScrollDepth = () => {
+            const doc = document.documentElement;
+            const depth = (window.scrollY + window.innerHeight) / Math.max(doc.scrollHeight, 1);
+            if (depth > 0.45) {
+                window.removeEventListener('scroll', onScrollDepth);
+                maybeAutoOpen();
+            }
+        };
+        window.addEventListener('scroll', onScrollDepth, { passive: true });
+    }
+    setTimeout(maybeAutoOpen, 30_000);
+    bubble.addEventListener('click', () => {
+        if (panel.classList.contains('open')) {
+            panel.classList.remove('open');
+            manuallyClosed = true;
+        } else {
+            openPanel();
+        }
+    });
+    panel.querySelector('.vifd-close').addEventListener('click', () => {
+        panel.classList.remove('open');
+        manuallyClosed = true;
+    });
 
     formEl.addEventListener('submit', async (e) => {
         e.preventDefault();
