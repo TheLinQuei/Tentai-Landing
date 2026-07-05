@@ -13,6 +13,20 @@
     const apiBase = script.dataset.apiBase || 'https://vi-api-zr7hl3nzja-uc.a.run.app';
     const apiKey = script.dataset.apiKey || '';
     const SESSION_KEY = 'vi-demo-session-id';
+    // Session freshness: the stored conversation resumes across reloads (so a
+    // visitor mid-chat can navigate pages), but expires after 48h of
+    // inactivity — a returning visitor weeks later gets a FRESH conversation
+    // instead of silently continuing an old one (charter: no simulated
+    // continuity; the front desk doesn't "remember" people).
+    const SESSION_TOUCHED_KEY = 'vi-demo-last-at';
+    const SESSION_TTL_MS = 48 * 60 * 60 * 1000;
+    {
+        const last = parseInt(localStorage.getItem(SESSION_TOUCHED_KEY) || '0', 10);
+        if (localStorage.getItem(SESSION_KEY) && (!last || Date.now() - last > SESSION_TTL_MS)) {
+            localStorage.removeItem(SESSION_KEY);
+        }
+    }
+    const touchSession = () => localStorage.setItem(SESSION_TOUCHED_KEY, String(Date.now()));
 
     const css = `
     .vifd-bubble{position:fixed;right:1.25rem;bottom:1.25rem;z-index:9000;width:56px;height:56px;border-radius:50%;
@@ -258,7 +272,10 @@
             }
             const data = await res.json();
             const sessionId = data?.vi?.sessionId;
-            if (sessionId) localStorage.setItem(SESSION_KEY, sessionId);
+            if (sessionId) {
+                localStorage.setItem(SESSION_KEY, sessionId);
+                touchSession();
+            }
             append('assistant', data?.choices?.[0]?.message?.content || 'No reply this turn — please try again.');
         } catch (err) {
             append('assistant', (err && err.message) ? err.message : 'The front desk is starting up. Please try again shortly.');
