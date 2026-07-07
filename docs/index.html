@@ -22,6 +22,7 @@
     <meta property="og:title" content="Tentai Technology">
     <meta property="og:description" content="Tentai Technology builds Vi — a continuous AI with real memory — plus custom websites, booking automation, and AI integrations for your business.">
     <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Tentai Technology">
     <meta property="og:url" content="https://tentaitech.com/">
     <meta property="og:image" content="https://tentaitech.com/assets/og-image.png">
     <meta property="og:image:width" content="1200">
@@ -32,12 +33,23 @@
     <meta name="twitter:title" content="Tentai Technology">
     <meta name="twitter:description" content="Tentai Technology builds Vi — a continuous AI with real memory — plus custom websites, booking automation, and AI integrations for your business.">
     <meta name="twitter:image" content="https://tentaitech.com/assets/og-image.png">
+
+    <!-- Site name + organization for search results -->
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@graph":[
+      {"@type":"WebSite","@id":"https://tentaitech.com/#website","url":"https://tentaitech.com/","name":"Tentai Technology","alternateName":"Tentai"},
+      {"@type":"Organization","@id":"https://tentaitech.com/#org","name":"Tentai Technology","legalName":"Tentai Technology LC","url":"https://tentaitech.com/","logo":"https://tentaitech.com/icon-512.png","email":"shykem.middleton@tentaitech.com","foundingDate":"2023"}
+    ]}
+    </script>
     
     <!-- Theme -->
     <meta name="theme-color" content="#B8963F">
     
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><radialGradient id='g' cx='50%25' cy='35%25' r='65%25'><stop offset='0%25' stop-color='%23D4B876'/><stop offset='60%25' stop-color='%23D4B876'/><stop offset='100%25' stop-color='%23B8963F'/></radialGradient></defs><circle cx='32' cy='32' r='28' fill='url(%23g)' opacity='0.9'/><circle cx='32' cy='32' r='18' fill='url(%23g)'/></svg>">
+    <!-- Favicon — real files (Google ignores data: URIs in search results) -->
+    <link rel="icon" href="/icon-32.png" type="image/png" sizes="32x32">
+    <link rel="icon" href="/icon-48.png" type="image/png" sizes="48x48">
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="/icon-180.png">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
