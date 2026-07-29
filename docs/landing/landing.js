@@ -136,4 +136,4 @@ document.querySelectorAll('img').forEach(img => {
 });
 
 console.log('%cTentai Technology', 'font-family: Georgia, serif; color: #D4B876; font-size: 18px;');
-console.log('%ctentaitech.com \u00b7 Vi \u00b7 Vigil \u00b7 client services \u00b7 v1.0.0', 'font-family: monospace; color: #B8963F; font-size: 11px; letter-spacing: 1px;');
+console.log('%ctentaitech.com \u00b7 Vi \u00b7 client services \u00b7 v1.0.0', 'font-family: monospace; color: #B8963F; font-size: 11px; letter-spacing: 1px;');
