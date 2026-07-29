@@ -11,6 +11,57 @@ function closeIOSModal() {
     document.body.style.overflow = '';
 }
 
+// Mobile nav — obsidian veil. Burger appears ≤640px where .nav-links hides.
+// Menu links are cloned from this page's navbar, so index and about stay in
+// sync with their own link sets; the CTA wires to the contact modal.
+(function () {
+    const navContent = document.querySelector('.navbar .nav-content');
+    const navLinks = document.querySelectorAll('.navbar .nav-links a');
+    if (!navContent || !navLinks.length) return;
+
+    const burger = document.createElement('button');
+    burger.className = 'mnav-burger';
+    burger.setAttribute('aria-label', 'Open navigation menu');
+    burger.setAttribute('aria-expanded', 'false');
+    burger.setAttribute('aria-controls', 'mnav');
+    burger.innerHTML = '<span></span><span></span><span></span>';
+    navContent.appendChild(burger);
+
+    const menu = document.createElement('nav');
+    menu.className = 'mnav';
+    menu.id = 'mnav';
+    menu.setAttribute('aria-label', 'Menu');
+    let i = 0;
+    navLinks.forEach(a => {
+        const link = a.cloneNode(true);
+        link.style.setProperty('--i', i++);
+        menu.appendChild(link);
+    });
+    const cta = document.createElement('a');
+    cta.href = '#';
+    cta.setAttribute('data-contact', 'start a project');
+    cta.className = 'mnav-cta';
+    cta.style.setProperty('--i', i);
+    cta.textContent = 'Start a project';
+    menu.appendChild(cta);
+    document.body.appendChild(menu);
+
+    const setOpen = open => {
+        document.body.classList.toggle('mnav-open', open);
+        burger.setAttribute('aria-expanded', String(open));
+        document.body.style.overflow = open ? 'hidden' : '';
+    };
+    burger.addEventListener('click', () => setOpen(!document.body.classList.contains('mnav-open')));
+    // capture phase: close (and release scroll-lock) before the link's own handler scrolls
+    menu.addEventListener('click', e => { if (e.target.closest('a')) setOpen(false); }, true);
+    window.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && document.body.classList.contains('mnav-open')) setOpen(false);
+    });
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 640 && document.body.classList.contains('mnav-open')) setOpen(false);
+    }, { passive: true });
+})();
+
 // Smooth scroll with offset for fixed header. Bare "#" links are panel
 // openers (data-open-frontdesk) handled by frontdesk-panel.js — skip them.
 document.querySelectorAll('a[href^="#"]:not([href="#"])').forEach(anchor => {
