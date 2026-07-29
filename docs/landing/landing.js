@@ -28,25 +28,83 @@ document.querySelectorAll('a[href^="#"]:not([href="#"])').forEach(anchor => {
     });
 });
 
-// Section reveal — one-shot, settles and stops. Respects reduced motion.
+// Randomized title reveals — every visit deals a fresh motion to each title.
+// Titles only; blocks hold still. The pool shares one easing/duration voice so
+// the variety reads as alive, not glitchy. Skipped entirely under reduced motion.
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-if (!prefersReducedMotion) {
+if (!prefersReducedMotion && 'IntersectionObserver' in window) {
+    const TITLE_SEL = '.section-badge, .section-title, .pause-line, .about-badge, .about-title, ' +
+                      '.project-card h3, .feature-card h3, .founder-info h3';
+    const titles = [...document.querySelectorAll(TITLE_SEL)]
+        .filter(el => !el.closest('.hero') && !el.closest('.footer'));
+
+    // T11/T12 rebuild the title's text into spans — only safe on markup-free titles
+    const POOL = ['T01', 'T02', 'T03', 'T04', 'T05', 'T06', 'T07', 'T08', 'T09', 'T10',
+                  'T11:words', 'T12:chars', 'T13', 'T14', 'T15', 'T16'];
+    const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const splitInto = (el, mode) => {
+        const text = el.textContent;
+        if (mode === 'words') {
+            let wi = 0;
+            el.innerHTML = text.trim().split(/\s+/)
+                .map(w => `<span class="mv-w" style="--wi:${wi++}">${esc(w)}</span>`).join(' ');
+        } else {
+            let ci = 0;
+            el.innerHTML = [...text]
+                .map(ch => /\s/.test(ch) ? ch : `<span class="mv-c" style="--ci:${ci++}">${esc(ch)}</span>`).join('');
+        }
+    };
+    const shuffled = () => {
+        const a = POOL.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    };
+
+    // shuffle-bag deal: even coverage of the pool, no treatment hogging the page
+    let bag = [];
+    titles.forEach(el => {
+        let t = null;
+        for (let tries = 0; tries < 40 && !t; tries++) {
+            if (!bag.length) bag = shuffled();
+            const cand = bag.pop();
+            const split = cand.split(':')[1];
+            if (split && (el.children.length || (split === 'chars' && el.textContent.trim().length > 26))) continue;
+            t = cand;
+        }
+        const [code, split] = (t || 'T01').split(':');
+        el.dataset.t = code;
+        if (split) splitInto(el, split);
+    });
+    document.body.classList.add('motion-rand');
+
+    const revealIfSeen = () => {
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        if (!vh) return;
+        titles.forEach(el => {
+            if (el.classList.contains('in')) return;
+            const r = el.getBoundingClientRect();
+            if (r.top < vh * 0.92 && r.bottom > 0) el.classList.add('in');
+        });
+    };
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+                entry.target.classList.add('in');
                 observer.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.15 });
-
-    document.querySelectorAll('.section').forEach(section => {
-        section.style.opacity = '0';
-        section.style.transform = 'translateY(12px)';
-        observer.observe(section);
-    });
+    }, { threshold: 0.08 });
+    titles.forEach(el => observer.observe(el));
+    setTimeout(revealIfSeen, 80);
+    let revealTick = null;
+    window.addEventListener('scroll', () => {
+        if (revealTick) return;
+        revealTick = setTimeout(() => { revealTick = null; revealIfSeen(); }, 120);
+    }, { passive: true });
 }
 
 // Sticky nav — tighten once the visitor commits to scrolling
