@@ -62,6 +62,36 @@ function closeIOSModal() {
     }, { passive: true });
 })();
 
+// Vi band — sticky mobile CTA (≤640px). Once the visitor commits past the
+// hero, the chat bubble becomes a bar: Talk to Vi + Start a project. The
+// gate has hysteresis so the band doesn't flicker at the threshold; the
+// scroll hook lives in the consolidated scroll handler below.
+(function () {
+    const navbar = document.querySelector('.navbar');
+    if (!navbar) return;
+    const band = document.createElement('div');
+    band.className = 'viband';
+    band.id = 'viband';
+    band.setAttribute('role', 'group');
+    band.setAttribute('aria-label', 'Quick actions');
+    band.innerHTML =
+        '<a href="#" data-open-frontdesk class="viband-face"><span class="viband-dot" aria-hidden="true">Vi</span><span>Talk to Vi</span></a>' +
+        '<a href="#" data-contact="start a project" class="viband-cta">Start a project</a>';
+    // right after the navbar: tab order matches its persistent visual role
+    navbar.insertAdjacentElement('afterend', band);
+
+    const hero = document.querySelector('.hero');
+    window.tentaiCtaGate = function () {
+        if (window.innerWidth > 640) { document.body.classList.remove('cta-on'); return; }
+        const arm = hero ? Math.max(320, Math.round(hero.offsetHeight * 0.55)) : 420;
+        const y = window.pageYOffset;
+        if (y > arm) document.body.classList.add('cta-on');
+        else if (y < arm - 90) document.body.classList.remove('cta-on');
+    };
+    window.addEventListener('resize', window.tentaiCtaGate, { passive: true });
+    window.tentaiCtaGate(); // deep links / scroll restoration land mid-page
+})();
+
 // Smooth scroll with offset for fixed header. Bare "#" links are panel
 // openers (data-open-frontdesk) handled by frontdesk-panel.js — skip them.
 document.querySelectorAll('a[href^="#"]:not([href="#"])').forEach(anchor => {
@@ -158,23 +188,15 @@ if (!prefersReducedMotion && 'IntersectionObserver' in window) {
     }, { passive: true });
 }
 
-// Sticky nav — tighten once the visitor commits to scrolling
+// One scroll handler: nav tighten + scroll-indicator fade + CTA band gate
 const navEl = document.querySelector('.navbar');
+const scrollIndicatorEl = document.querySelector('.scroll-indicator');
 window.addEventListener('scroll', () => {
-    if (navEl) navEl.classList.toggle('scrolled', window.pageYOffset > 40);
+    const y = window.pageYOffset;
+    if (navEl) navEl.classList.toggle('scrolled', y > 40);
+    if (scrollIndicatorEl) scrollIndicatorEl.style.opacity = y > 100 ? '0' : '1';
+    if (window.tentaiCtaGate) window.tentaiCtaGate();
 }, { passive: true });
-
-// Update scroll indicator visibility
-window.addEventListener('scroll', () => {
-    const scrollIndicator = document.querySelector('.scroll-indicator');
-    if (scrollIndicator) {
-        if (window.pageYOffset > 100) {
-            scrollIndicator.style.opacity = '0';
-        } else {
-            scrollIndicator.style.opacity = '1';
-        }
-    }
-});
 
 // Download tracking (console log for now)
 document.querySelectorAll('a[download]').forEach(link => {

@@ -1294,6 +1294,74 @@ body.mnav-open .mnav a { opacity: 1; transform: none; }
 @media (max-width: 640px) { .mnav-burger { display: flex; } }
 @media (min-width: 641px) { .mnav { display: none; } }
 
+/* ── Vi band — sticky mobile CTA (≤640px, injected by JS, arms past hero) ──
+   The chat bubble becomes a bar: Vi avatar + Talk to Vi, plus the project CTA.
+   .vifd-* overrides use compound selectors on purpose — the frontdesk widget
+   injects its own <style> later, so bare same-specificity rules would lose. */
+/* #viband by ID on purpose: the band is injected inside .hero on index.html,
+   and `.hero > *:not(.navbar)` would otherwise override position/z-index */
+#viband { display: none; }
+@media (max-width: 640px) {
+    #viband {
+        position: fixed;
+        left: 0.9rem;
+        right: 0.9rem;
+        bottom: calc(0.9rem + env(safe-area-inset-bottom, 0px));
+        z-index: 180;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.45rem 0.45rem 0.45rem 0.5rem;
+        border-radius: 999px;
+        background: #12100C;
+        border: 1px solid rgba(212, 184, 118, 0.35);
+        box-shadow: var(--shadow-2);
+        transform: translateY(140%);
+        transition: transform 340ms var(--ease-lux);
+    }
+    body.cta-on #viband { transform: none; }
+    .viband-face {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        flex: 1;
+        color: var(--text-primary);
+        font-size: 0.98rem;
+        font-weight: 500;
+    }
+    .viband-dot {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+        color: #0D0B08;
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .viband-cta {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0D0B08;
+        background: var(--gold);
+        border-radius: 999px;
+        padding: 0.75rem 1.2rem;
+    }
+    .viband-cta:active { transform: translateY(1px); }
+
+    /* the band absorbs the bubble while armed */
+    body.cta-on .vifd-bubble { opacity: 0; transform: scale(0.6); pointer-events: none; transition: opacity 220ms ease, transform 220ms ease; }
+    /* the chat panel clears the armed band (notched phones included) */
+    body.cta-on .vifd-panel { bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)); }
+    /* fixed band takes no flow space — keep the footer reachable */
+    body.cta-on { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+    /* the veil menu owns the screen while open */
+    body.mnav-open #viband, body.mnav-open .vifd-bubble { visibility: hidden; pointer-events: none; }
+}
+
 /* ── Responsive ───────────────────────────────────────────────────────── */
 @media (max-width: 860px) {
     .nav-links { gap: 1.4rem; }
