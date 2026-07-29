@@ -57,6 +57,7 @@
     .vifd-form button:disabled{opacity:.35;cursor:default}
     .vifd-note{text-align:center;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.06em;
       color:rgba(232,226,214,.45);padding:0 .9rem .7rem}
+    .vifd-lead-link{background:none;border:none;padding:0;font:inherit;letter-spacing:inherit;color:inherit;cursor:pointer}
     .vifd-gate{margin:.4rem .9rem .9rem;padding:.9rem;border:1px solid rgba(212,184,118,.35);border-radius:8px;
       background:rgba(212,184,118,.04);font-size:.83rem;line-height:1.5}
     .vifd-gate .vifd-gate-label{display:block;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;
@@ -91,7 +92,7 @@
         '<form class="vifd-form" autocomplete="off">' +
         '<input type="text" placeholder="Ask about services, pricing, or booking..." aria-label="Message the front desk">' +
         '<button type="submit">Send</button></form>' +
-        '<p class="vifd-note"><a href="#" class="vifd-lead-link">Leave contact details →</a></p>';
+        '<p class="vifd-note"><button type="button" class="vifd-lead-link">Leave contact details →</button></p>';
     document.body.appendChild(bubble);
     document.body.appendChild(panel);
 
@@ -189,13 +190,10 @@
         }
         if (!inputEl.disabled) inputEl.focus();
     };
-    panel.querySelector('.vifd-lead-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        showGate('manual');
-    });
+    panel.querySelector('.vifd-lead-link').addEventListener('click', () => showGate('manual'));
 
     // Any element with data-open-frontdesk opens the panel — the hero
-    // "Talk to Vi" CTA, the nav "Chat" links, footer links.
+    // "Talk to Vi" CTA, the nav "Chat" buttons, footer buttons.
     document.addEventListener('click', (e) => {
         const trigger = e.target.closest('[data-open-frontdesk]');
         if (!trigger) return;

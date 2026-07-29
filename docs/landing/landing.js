@@ -12,11 +12,12 @@ function closeIOSModal() {
 }
 
 // Mobile nav — obsidian veil. Burger appears ≤640px where .nav-links hides.
-// Menu links are cloned from this page's navbar, so index and about stay in
-// sync with their own link sets; the CTA wires to the contact modal.
+// Menu entries are cloned from this page's navbar (links and the Chat
+// button), so index and about stay in sync with their own sets; the CTA
+// wires to the contact modal.
 (function () {
     const navContent = document.querySelector('.navbar .nav-content');
-    const navLinks = document.querySelectorAll('.navbar .nav-links a');
+    const navLinks = document.querySelectorAll('.navbar .nav-links :is(a, button)');
     if (!navContent || !navLinks.length) return;
 
     const burger = document.createElement('button');
@@ -37,8 +38,8 @@ function closeIOSModal() {
         link.style.setProperty('--i', i++);
         menu.appendChild(link);
     });
-    const cta = document.createElement('a');
-    cta.href = '#';
+    const cta = document.createElement('button');
+    cta.type = 'button';
     cta.setAttribute('data-contact', 'start a project');
     cta.className = 'mnav-cta';
     cta.style.setProperty('--i', i);
@@ -52,8 +53,8 @@ function closeIOSModal() {
         document.body.style.overflow = open ? 'hidden' : '';
     };
     burger.addEventListener('click', () => setOpen(!document.body.classList.contains('mnav-open')));
-    // capture phase: close (and release scroll-lock) before the link's own handler scrolls
-    menu.addEventListener('click', e => { if (e.target.closest('a')) setOpen(false); }, true);
+    // capture phase: close (and release scroll-lock) before the entry's own handler scrolls or opens
+    menu.addEventListener('click', e => { if (e.target.closest('a, button')) setOpen(false); }, true);
     window.addEventListener('keydown', e => {
         if (e.key === 'Escape' && document.body.classList.contains('mnav-open')) setOpen(false);
     });
@@ -75,8 +76,8 @@ function closeIOSModal() {
     band.setAttribute('role', 'group');
     band.setAttribute('aria-label', 'Quick actions');
     band.innerHTML =
-        '<a href="#" data-open-frontdesk class="viband-face"><span class="viband-dot" aria-hidden="true">Vi</span><span>Talk to Vi</span></a>' +
-        '<a href="#" data-contact="start a project" class="viband-cta">Start a project</a>';
+        '<button type="button" data-open-frontdesk class="viband-face"><span class="viband-dot" aria-hidden="true">Vi</span><span>Talk to Vi</span></button>' +
+        '<button type="button" data-contact="start a project" class="viband-cta">Start a project</button>';
     // right after the navbar: tab order matches its persistent visual role
     navbar.insertAdjacentElement('afterend', band);
 
@@ -92,8 +93,9 @@ function closeIOSModal() {
     window.tentaiCtaGate(); // deep links / scroll restoration land mid-page
 })();
 
-// Smooth scroll with offset for fixed header. Bare "#" links are panel
-// openers (data-open-frontdesk) handled by frontdesk-panel.js — skip them.
+// Smooth scroll with offset for fixed header. Panel/modal triggers are
+// <button>s, so every href^="#" anchor left is a real in-page link (the
+// bare-"#" guard stays as a safety net).
 document.querySelectorAll('a[href^="#"]:not([href="#"])').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
