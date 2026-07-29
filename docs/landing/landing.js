@@ -21,6 +21,7 @@ function closeIOSModal() {
     if (!navContent || !navLinks.length) return;
 
     const burger = document.createElement('button');
+    burger.type = 'button';
     burger.className = 'mnav-burger';
     burger.setAttribute('aria-label', 'Open navigation menu');
     burger.setAttribute('aria-expanded', 'false');

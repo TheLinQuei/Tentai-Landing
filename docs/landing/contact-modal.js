@@ -44,7 +44,7 @@
     overlay.className = 'vicm-overlay';
     overlay.innerHTML =
         '<div class="vicm-card" role="dialog" aria-modal="true" aria-label="Contact Tentai">' +
-        '<button class="vicm-close" aria-label="Close">×</button>' +
+        '<button type="button" class="vicm-close" aria-label="Close">×</button>' +
         '<span class="vicm-label">Work with Tentai</span>' +
         '<h3 class="vicm-title">Start the conversation</h3>' +
         '<p class="vicm-sub">Tell us what you need — Shykem reads every message and replies personally.</p>' +

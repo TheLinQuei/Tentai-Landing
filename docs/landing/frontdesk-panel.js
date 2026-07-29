@@ -78,6 +78,7 @@
     document.head.appendChild(style);
 
     const bubble = document.createElement('button');
+    bubble.type = 'button';
     bubble.className = 'vifd-bubble';
     bubble.setAttribute('aria-label', 'Open the Tentai front desk chat');
     bubble.textContent = 'Vi';
@@ -87,7 +88,7 @@
     panel.setAttribute('aria-label', 'Tentai front desk');
     panel.innerHTML =
         '<div class="vifd-head"><span><span class="vifd-dot"></span>vi.public · front desk</span>' +
-        '<button class="vifd-close" aria-label="Close">×</button></div>' +
+        '<button type="button" class="vifd-close" aria-label="Close">×</button></div>' +
         '<div class="vifd-msgs"></div>' +
         '<form class="vifd-form" autocomplete="off">' +
         '<input type="text" placeholder="Ask about services, pricing, or booking..." aria-label="Message the front desk">' +
