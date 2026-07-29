@@ -1084,7 +1084,10 @@ a { color: inherit; text-decoration: none; }
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    /* Above the frontdesk bubble/panel (9000/9001, injected by
+       frontdesk-panel.js) and contact modal (9500) so an open dialog is
+       never floated over by still-clickable widgets. */
+    z-index: 9600;
     align-items: center;
     justify-content: center;
 }

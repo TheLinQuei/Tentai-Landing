@@ -43,7 +43,7 @@
     const overlay = document.createElement('div');
     overlay.className = 'vicm-overlay';
     overlay.innerHTML =
-        '<div class="vicm-card" role="dialog" aria-label="Contact Tentai">' +
+        '<div class="vicm-card" role="dialog" aria-modal="true" aria-label="Contact Tentai">' +
         '<button class="vicm-close" aria-label="Close">×</button>' +
         '<span class="vicm-label">Work with Tentai</span>' +
         '<h3 class="vicm-title">Start the conversation</h3>' +
@@ -63,18 +63,54 @@
     const card = overlay.querySelector('.vicm-card');
     const form = overlay.querySelector('.vicm-form');
     let currentTopic = 'contact';
+    let lastTrigger = null;
 
-    const close = () => overlay.classList.remove('open');
+    // Opening supersedes the mobile veil menu — some triggers (mnav CTA,
+    // floating widgets) are reachable while the veil is up, and stacking on
+    // top of it would leave the menu and its scroll lock live underneath.
+    const dismissVeil = () => {
+        if (!document.body.classList.contains('mnav-open')) return;
+        document.body.classList.remove('mnav-open');
+        const burger = document.querySelector('.mnav-burger');
+        if (burger) burger.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+    };
+
+    const close = () => {
+        if (!overlay.classList.contains('open')) return;
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+        if (lastTrigger && document.contains(lastTrigger)) lastTrigger.focus();
+        lastTrigger = null;
+    };
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
     overlay.querySelector('.vicm-close').addEventListener('click', close);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { close(); return; }
+        // Focus trap — Tab/Shift+Tab cycle inside the open dialog (aria-modal contract).
+        if (e.key !== 'Tab' || !overlay.classList.contains('open')) return;
+        const focusables = [...card.querySelectorAll('button, [href], input, textarea')]
+            .filter(el => !el.disabled && el.tabIndex >= 0);
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey ? (active === first || !card.contains(active))
+                       : (active === last || !card.contains(active))) {
+            e.preventDefault();
+            (e.shiftKey ? last : first).focus();
+        }
+    });
 
     document.addEventListener('click', (e) => {
         const trigger = e.target.closest('[data-contact]');
         if (!trigger) return;
         e.preventDefault();
+        dismissVeil();
         currentTopic = trigger.getAttribute('data-contact') || 'contact';
+        lastTrigger = trigger;
         overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
         const first = form?.querySelector('input[name="name"]');
         if (first) first.focus();
     });

@@ -170,7 +170,18 @@
     };
 
     let greeted = false;
+    // Opening supersedes the mobile veil menu — the bubble floats above the
+    // veil, and stacking the panel on top would leave the menu and its
+    // scroll lock live underneath.
+    const dismissVeil = () => {
+        if (!document.body.classList.contains('mnav-open')) return;
+        document.body.classList.remove('mnav-open');
+        const burger = document.querySelector('.mnav-burger');
+        if (burger) burger.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+    };
     const openPanel = () => {
+        dismissVeil();
         panel.classList.add('open');
         if (!greeted) {
             greeted = true;
@@ -200,6 +211,9 @@
     let autoArmed = true;
     const maybeAutoOpen = () => {
         if (!autoArmed || manuallyClosed || panel.classList.contains('open')) return;
+        // Never auto-open over a deliberately opened nav menu (openPanel would
+        // dismiss it) — the dwell timer can fire while the veil is up.
+        if (document.body.classList.contains('mnav-open')) return;
         const last = parseInt(localStorage.getItem(AUTO_KEY) || '0', 10);
         if (Date.now() - last < 7 * 24 * 60 * 60 * 1000) return;
         autoArmed = false;
