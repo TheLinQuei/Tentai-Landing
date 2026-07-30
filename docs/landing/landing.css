@@ -308,6 +308,35 @@ a { color: inherit; text-decoration: none; }
     background: var(--bg-dark);
 }
 
+/* ── Vi's portrait — the hero's atmosphere (owner pick C, presence lab) ──
+   #id on purpose: `.hero > *:not(.navbar)` forces position:relative/z-1 onto
+   class-level children, which would un-layer this backdrop (same trap as
+   #viband). The obsidian gradient keeps the copy readable; she keeps the room. */
+#heroPortrait {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+#heroPortrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 26%;
+    filter: saturate(0.92) brightness(0.9);
+}
+#heroPortrait::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(13, 11, 8, 0.78) 0%, rgba(13, 11, 8, 0.55) 42%, var(--bg-dark) 94%);
+}
+@media (max-width: 640px) {
+    #heroPortrait::after {
+        background: linear-gradient(180deg, rgba(13, 11, 8, 0.85) 0%, rgba(13, 11, 8, 0.68) 45%, var(--bg-dark) 94%);
+    }
+}
+
 /* Single disciplined light source behind the headline */
 .hero::before {
     content: '';
