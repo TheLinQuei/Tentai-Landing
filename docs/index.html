@@ -63,13 +63,24 @@
     </script>
     <script src="/landing/analytics.js" defer></script>
     
-    <link rel="stylesheet" href="/landing/landing.css?v=20260730vi">
+    <link rel="stylesheet" href="/landing/landing.css?v=20260730hero">
 </head>
 <body>
     <!-- Hero Section -->
     <div class="hero">
-        <!-- Vi's portrait — the hero's atmosphere (owner pick C, presence lab 2026-07-30) -->
-        <div id="heroPortrait" aria-hidden="true"><img src="/assets/vi-portrait.jpg" alt="" fetchpriority="high"></div>
+        <!-- Vi's portrait — the hero's atmosphere (owner pick C, presence lab 2026-07-30).
+             AVIF rungs for modern browsers, JPEG fallback; sized to the viewport so
+             4K never upscales and phones never over-download. -->
+        <div id="heroPortrait" aria-hidden="true">
+            <picture>
+                <source type="image/avif"
+                        srcset="/assets/vi-portrait-960.avif 960w, /assets/vi-portrait-1440.avif 1440w, /assets/vi-portrait-1920.avif 1920w, /assets/vi-portrait-2560.avif 2560w"
+                        sizes="100vw">
+                <img src="/assets/vi-portrait.jpg"
+                     srcset="/assets/vi-portrait-960.jpg 960w, /assets/vi-portrait-1440.jpg 1440w, /assets/vi-portrait.jpg 1800w, /assets/vi-portrait-1920.jpg 1920w, /assets/vi-portrait-2560.jpg 2560w"
+                     sizes="100vw" alt="" fetchpriority="high">
+            </picture>
+        </div>
 
         <nav class="navbar">
             <div class="nav-content">
