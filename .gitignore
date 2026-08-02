@@ -1,0 +1,5 @@
+
+# Design-variant scratch pages. Kept locally, never shipped: this repo deploys
+# committed main straight to Cloudflare Pages, so a committed _preview.html is a
+# public URL on tentaitech.com.
+_*.html
