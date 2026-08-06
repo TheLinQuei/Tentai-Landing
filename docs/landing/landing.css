@@ -370,7 +370,7 @@ a { color: inherit; text-decoration: none; }
         top: 0;
         left: 0;
         right: 0;
-        /* 3:4 — matched to the art-directed `vi-portrait-tall-*` source that
+        /* 3:4 — matched to the art-directed `vi-tall-*` source that
            index.html serves at this same breakpoint. Box aspect == source aspect
            means `cover` crops essentially nothing, so the phone shows her whole
            face instead of a magnified strip. The earlier 1.15 value was fighting

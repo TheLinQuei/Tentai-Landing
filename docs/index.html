@@ -63,7 +63,7 @@
     </script>
     <script src="/landing/analytics.js" defer></script>
     
-    <link rel="stylesheet" href="/landing/landing.css?v=20260805tall">
+    <link rel="stylesheet" href="/landing/landing.css?v=20260806vi">
 </head>
 <body>
     <!-- Hero Section -->
@@ -75,13 +75,24 @@
             <picture>
                 <!-- ART DIRECTION, not just resolution. The landscape master is
                      1.784 and the hero's aspect ranges ~0.36 (phone) to ~4.2 (4K):
-                     no single crop serves both. On portrait viewports this 3:4 cut
-                     (ffmpeg crop=1076:1434:742:0 off the 2560 master, centred on her
-                     face) matches the box aspect set in landing.css, so it renders
-                     with essentially NO crop — her whole face, rather than a
-                     zoomed-in band. Must come FIRST: <source> is first-match-wins. -->
+                     no single crop serves both. Must come FIRST: <source> is
+                     first-match-wins.
+
+                     This is a NATIVE 3:4 render (Midjourney v8.2, omni-reference
+                     off the landscape master, job 027b5061-70d8-46c1-8117-
+                     02b2f133e15d), not a crop. It replaced an ffmpeg cut of the
+                     landscape file, and the difference that matters is composition,
+                     not pixels: in the master her chin sits at 92% of frame with
+                     almost nothing beneath it, so any window that reached her chin
+                     hit the edge. Here the chin is ~75% with shoulders and jacket
+                     filling the rest, which is what gives a crop somewhere to go.
+                     Box aspect in landing.css is matched to 3:4, so cover crops
+                     ~nothing. -->
+                <source media="(max-aspect-ratio: 1/1)" type="image/avif"
+                        srcset="/assets/vi-tall-480.avif 480w, /assets/vi-tall-696.avif 696w, /assets/vi-tall-928.avif 928w"
+                        sizes="100vw">
                 <source media="(max-aspect-ratio: 1/1)"
-                        srcset="/assets/vi-portrait-tall-540.jpg 540w, /assets/vi-portrait-tall-810.jpg 810w, /assets/vi-portrait-tall-1076.jpg 1076w"
+                        srcset="/assets/vi-tall-480.jpg 480w, /assets/vi-tall-696.jpg 696w, /assets/vi-tall-928.jpg 928w"
                         sizes="100vw">
                 <source type="image/avif"
                         srcset="/assets/vi-portrait-960.avif 960w, /assets/vi-portrait-1440.avif 1440w, /assets/vi-portrait-1920.avif 1920w, /assets/vi-portrait-2560.avif 2560w"
