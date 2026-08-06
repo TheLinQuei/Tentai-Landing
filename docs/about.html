@@ -59,7 +59,7 @@
     </script>
     <script src="/landing/analytics.js" defer></script>
 
-    <link rel="stylesheet" href="/landing/landing.css?v=20260806vi">
+    <link rel="stylesheet" href="/landing/landing.css?v=20260806about">
 </head>
 <body>
 
@@ -85,7 +85,10 @@
                 </div>
             </a>
             <div class="nav-links">
-                <button type="button" data-open-frontdesk>Chat</button>
+                <!-- "Chat" removed 2026-08-06 to match index.html. It was dropped
+                     there a day earlier and missed here, which left the two pages
+                     showing different navigation to the same visitor. The front
+                     desk is still reachable from the floating trigger. -->
                 <a href="/#services">Services</a>
                 <a href="https://chat.tentaitech.com">Get Vi</a>
                 <a href="/about">About</a>
@@ -107,7 +110,27 @@
     <!-- Overview -->
     <section class="section about-section" style="border-top: none;">
         <div class="container">
-            <div class="about-content">
+            <!-- Vi's portrait sits with the paragraph that introduces her. Same
+                 Midjourney job as the hero render (027b5061-70d8-46c1-8117-
+                 02b2f133e15d), different frame: this is the three-quarter turn,
+                 which is the wrong shape for the hero — centred headline text over
+                 an asymmetric face fights itself — and the right one here, where
+                 nothing overlays it.
+                 aria-hidden + empty alt: she is atmosphere on this page, and the
+                 adjacent paragraph already says who she is. Announcing her twice
+                 to a screen reader is noise, not access. -->
+            <div class="about-content about-content--with-portrait">
+                <figure class="about-portrait" aria-hidden="true">
+                    <picture>
+                        <source type="image/avif"
+                                srcset="/assets/vi-about-480.avif 480w, /assets/vi-about-928.avif 928w"
+                                sizes="(max-width: 860px) 100vw, 340px">
+                        <img src="/assets/vi-about-928.jpg"
+                             srcset="/assets/vi-about-480.jpg 480w, /assets/vi-about-928.jpg 928w"
+                             sizes="(max-width: 860px) 100vw, 340px"
+                             alt="" loading="lazy" decoding="async">
+                    </picture>
+                </figure>
                 <div class="about-text">
                     <p class="about-intro">
                         <strong>Tentai Technology</strong> is an independent AI and software studio, founded in 2023 and based in the United States.

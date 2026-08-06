@@ -1580,3 +1580,39 @@ body.mnav-open .mnav :is(a, button) { opacity: 1; transform: none; }
     .pf-bar { gap: 0.5rem; margin-bottom: 2.25rem; }
     .pf-bar span { font-size: 0.62rem; padding: 0.42rem 0.75rem; }
 }
+
+/* ── About page: Vi beside the paragraph that introduces her ─────────────────
+   Only the FIRST about-section opts in via --with-portrait; the founder block
+   further down keeps the plain centred column. Wider max-width than the base
+   .about-content (780px) because the portrait needs its own track — without
+   that the text column would be squeezed to unreadable measure on a laptop. */
+.about-content--with-portrait {
+    max-width: 1040px;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 3.25rem;
+    align-items: start;
+}
+.about-portrait { margin: 0; }
+.about-portrait picture { display: block; }
+.about-portrait img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--line);
+    /* Matched to the hero treatment so she reads as the same presence across
+       pages rather than two different photographs of one character. */
+    filter: saturate(0.92) brightness(0.9);
+}
+/* Single column below the point where a 340px portrait plus readable text stops
+   fitting. Portrait FIRST in the DOM, so on a phone she introduces the page
+   rather than trailing it. */
+@media (max-width: 860px) {
+    .about-content--with-portrait {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        max-width: 780px;
+    }
+    .about-portrait img { max-width: 320px; margin: 0 auto; }
+}
