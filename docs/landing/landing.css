@@ -381,8 +381,42 @@ a { color: inherit; text-decoration: none; }
    these run higher than the 34%/39% they replace. */
 #heroPortrait img { object-position: 50% var(--portrait-y, 26%); }
 @media (min-aspect-ratio: 3/2)  { #heroPortrait { --portrait-y: 34%; } }
-@media (min-aspect-ratio: 16/9) { #heroPortrait { --portrait-y: 44%; } }
-@media (min-aspect-ratio: 21/9) { #heroPortrait { --portrait-y: 50%; } }
+@media (min-aspect-ratio: 16/9) { #heroPortrait { --portrait-y: 78%; } }
+@media (min-aspect-ratio: 21/9) { #heroPortrait { --portrait-y: 78%; } }
+
+/* ── ⚠ THE WINDOW WAS SMALLER THAN HER FACE ────────────────────────────────
+   Measured off the source (vi-portrait-1440.jpg, 1440x806): her face runs from
+   the hairline at ~25% of image height to the chin at ~92% — 67% of the frame.
+
+   A hero of aspect A that is width-bound shows S/A of the image height, where
+   S = 1.784. At 3840x2160 the hero was 3825x909, i.e. A = 4.21, so the window
+   was 1.784/4.21 = 42% of the image. Her face did not fit in it, and no
+   object-position could make it fit — raising --portrait-y simply traded her
+   eyes away for her chin. That is why the first nudge (39% -> 44%) barely
+   helped: it was solving the wrong variable.
+
+   So bound the ASPECT instead. Requiring the window to cover >= 70% of image
+   height means A <= 1.784/0.70 = 2.55, which at 3840 wide needs ~1506px of
+   hero — hence 70vh. With the window at 70% and the face at 67%, she fits with
+   room to spare, and --portrait-y 78% centres the face inside it.
+   Applied only to wide viewports; narrow ones are height-bound and already
+   capped by the rule further up. */
+@media (min-aspect-ratio: 16/9) {
+    .hero { min-height: 70vh; }
+    /* ⚠ The taller hero puts her chin at ~97% of the box, and the default fade
+       is fully opaque from 94% — so the framing fix alone would have rendered
+       her lower face and then painted over it. Holding the ramp open to the
+       bottom edge is what actually makes it visible. The upper stops are
+       unchanged: they are what keeps the headline readable, and the copy sits
+       in the top half. */
+    #heroPortrait::after {
+        background: linear-gradient(180deg,
+            rgba(13, 11, 8, 0.78) 0%,
+            rgba(13, 11, 8, 0.55) 42%,
+            rgba(13, 11, 8, 0.72) 82%,
+            var(--bg-dark) 100%);
+    }
+}
 
 /* Single disciplined light source behind the headline */
 .hero::before {
