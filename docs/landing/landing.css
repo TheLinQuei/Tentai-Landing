@@ -370,7 +370,23 @@ a { color: inherit; text-decoration: none; }
         top: 0;
         left: 0;
         right: 0;
-        height: min(100%, calc(100vw / 1.15));
+        /* 3:4 — matched to the art-directed `vi-portrait-tall-*` source that
+           index.html serves at this same breakpoint. Box aspect == source aspect
+           means `cover` crops essentially nothing, so the phone shows her whole
+           face instead of a magnified strip. The earlier 1.15 value was fighting
+           the LANDSCAPE master: it bounded the zoom (79.9% -> 35.5% crop) but
+           still cut most of her, and left her a shallow band at the top of a
+           tall hero, which is why she read as barely-there on a phone. */
+        height: min(100%, calc(100vw / 0.75));
+    }
+    /* She now occupies the top ~48% of the hero rather than a thin strip, so the
+       fade can start softer without hurting headline legibility. Previously 0.85
+       at the top, which on an already-small band left her almost invisible. */
+    #heroPortrait::after {
+        background: linear-gradient(180deg,
+            rgba(13, 11, 8, 0.62) 0%,
+            rgba(13, 11, 8, 0.58) 45%,
+            var(--bg-dark) 96%);
     }
 }
 

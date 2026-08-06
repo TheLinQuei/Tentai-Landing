@@ -63,7 +63,7 @@
     </script>
     <script src="/landing/analytics.js" defer></script>
     
-    <link rel="stylesheet" href="/landing/landing.css?v=20260805face">
+    <link rel="stylesheet" href="/landing/landing.css?v=20260805tall">
 </head>
 <body>
     <!-- Hero Section -->
@@ -73,6 +73,16 @@
              4K never upscales and phones never over-download. -->
         <div id="heroPortrait" aria-hidden="true">
             <picture>
+                <!-- ART DIRECTION, not just resolution. The landscape master is
+                     1.784 and the hero's aspect ranges ~0.36 (phone) to ~4.2 (4K):
+                     no single crop serves both. On portrait viewports this 3:4 cut
+                     (ffmpeg crop=1076:1434:742:0 off the 2560 master, centred on her
+                     face) matches the box aspect set in landing.css, so it renders
+                     with essentially NO crop — her whole face, rather than a
+                     zoomed-in band. Must come FIRST: <source> is first-match-wins. -->
+                <source media="(max-aspect-ratio: 1/1)"
+                        srcset="/assets/vi-portrait-tall-540.jpg 540w, /assets/vi-portrait-tall-810.jpg 810w, /assets/vi-portrait-tall-1076.jpg 1076w"
+                        sizes="100vw">
                 <source type="image/avif"
                         srcset="/assets/vi-portrait-960.avif 960w, /assets/vi-portrait-1440.avif 1440w, /assets/vi-portrait-1920.avif 1920w, /assets/vi-portrait-2560.avif 2560w"
                         sizes="100vw">
