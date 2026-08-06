@@ -104,10 +104,12 @@
                     </div>
                 </div>
                 <div class="nav-links">
-                    <button type="button" data-open-frontdesk>Chat</button>
+                    <!-- "Chat" removed 2026-08-05 (owner): the front desk is always
+                         reachable from the hero CTA and the floating trigger, so a nav
+                         tab for it was a third door to the same room. -->
                     <a href="#services">Services</a>
                     <a href="https://chat.tentaitech.com">Get Vi</a>
-                    <a href="#about">About</a>
+                    <a href="/about.html">About</a>
                 </div>
             </div>
         </nav>
@@ -233,6 +235,49 @@
     </section>
 
 
+    <!-- Client proof — owner pick F (proof lab), shipped 2026-08-05.
+         ⚠ EVERY QUOTE HERE IS VERBATIM FROM A PUBLIC GOOGLE REVIEW. The lab
+         sheet carried invented placeholder quotes behind a `draft — real quote
+         pending` tag; those were never true and are not used. If a quote is ever
+         edited here, it stops being a testimonial and becomes copy written in a
+         client's name. Trim with an ellipsis, never reword.
+         Michael's company is deliberately unnamed: he did not name it in his
+         review, so naming it here would be us volunteering a client's business
+         rather than echoing what he chose to make public. Dayleon did name his. -->
+    <section id="proof" class="section proof-section">
+        <div class="container">
+            <div class="section-header">
+                <p class="section-eyebrow">Client work</p>
+                <h2 class="section-title">Proof, not promises</h2>
+                <p class="section-lede">Real builds, real owners, live right now.</p>
+            </div>
+            <div class="proof-body">
+                <div class="pf-bar">
+                    <span><strong>2</strong> paying clients</span>
+                    <span><strong>2</strong> builds in production</span>
+                    <span>est. <strong>2023</strong></span>
+                    <span><strong>100%</strong> client code ownership</span>
+                </div>
+                <div class="pf-barquote">
+                    <blockquote>&ldquo;He built the booking website for Drip Clean Mobile Detailing
+                        and later updated it so nearly everything runs automatically. Now all I have
+                        to do is accept or decline appointments. He made the entire process smooth,
+                        simple, and very affordable.&rdquo;</blockquote>
+                    <p class="pf-attr">Dayleon Blanton · Drip Clean Mobile Detailing ·
+                        <a href="https://www.dripcleanhq.com" target="_blank" rel="noopener">dripcleanhq.com</a>
+                    </p>
+                </div>
+                <div class="pf-barquote pf-barquote-second">
+                    <blockquote>&ldquo;They took the time to understand my vision and turned it into
+                        a polished, investor-ready package that gave me confidence moving forward.
+                        Communication was excellent throughout the entire process, and they were
+                        responsive to questions and revisions.&rdquo;</blockquote>
+                    <p class="pf-attr">Michael Middleton · business proposal package</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Features Section -->
     <section id="features" class="section features-section">
         <div class="container">
@@ -282,73 +327,10 @@
     </section>
 
     <!-- About Section -->
-    <section id="about" class="section about-section">
-        <div class="container">
-            <div class="about-content">
-                <div class="about-badge">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
-                    <span>Tentai Technology</span>
-                </div>
-
-                <h2 class="about-title">About Tentai Technology</h2>
-                
-                <div class="about-text">
-                    <p class="about-intro">
-                        <strong>Tentai Technology</strong> is a solo-built AI and software studio.
-                        Vi is the flagship — a continuous AI with real memory, the same self across web and mobile.
-                        The same discipline goes into every client build.
-                    </p>
-
-                    <p>
-                        Every Tentai product is built without tracking, ads, or harvested data. Your conversations,
-                        your schedules, your state — they belong to you. That's not a policy bolted on afterward; it's the architecture.
-                    </p>
-
-                    <p class="about-future">
-                        Vi is live. Client work is open now —
-                        websites, booking automation, and AI integrations. If you have a project in mind, reach out.
-                    </p>
-                </div>
-
-                <!-- Founder Block -->
-                <div class="founder-block">
-                    <div class="founder-inner">
-                        <div class="founder-avatar">S</div>
-                        <div class="founder-info">
-                            <h3>Shykem</h3>
-                            <p class="founder-role">Founder &amp; Sole Engineer &middot; Tentai Technology</p>
-                            <p>
-                                Tentai is a solo build. Every line of code, every persona decision, every brand mark on this page comes from one person with one vision: tools that feel <em>continuous</em> &mdash; that remember you, that don't forget who you are between sessions, that respect your attention instead of farming it.
-                            </p>
-                            <p>
-                                Vi started as an experiment in giving an AI real memory and a real identity instead of treating it as a stateless answer machine. Client work followed &mdash; real businesses needed the same things Tentai was already building for itself.
-                            </p>
-                            <p>
-                                The throughline: <strong>build what should exist, and ship it with the discipline a team of fifty would have.</strong>
-                            </p>
-                            <p class="founder-contact">
-                                <a href="mailto:shykem.middleton@tentaitech.com">shykem.middleton@tentaitech.com</a> &middot; <a href="https://github.com/TheLinQuei" target="_blank" rel="noopener">GitHub</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="about-cta" style="margin-top:3rem;">
-                    <a href="https://chat.tentaitech.com" class="btn btn-primary">
-                        Get Vi
-                    </a>
-                    <a href="https://github.com/TheLinQuei" class="btn btn-secondary" target="_blank">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                        </svg>
-                        Follow on GitHub
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- The About section that used to sit here was removed 2026-08-05 (owner pick).
+         It is NOT lost: docs/about.html carries the same copy plus the founder
+         block, and the nav About link now points there. Verified duplicate before
+         cutting — about.html lines ~171-203 hold the Shykem Middleton section. -->
 
 
     <!-- Footer -->

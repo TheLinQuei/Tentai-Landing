@@ -171,7 +171,14 @@ if (!prefersReducedMotion && 'IntersectionObserver' in window) {
         titles.forEach(el => {
             if (el.classList.contains('in')) return;
             const r = el.getBoundingClientRect();
-            if (r.top < vh * 0.92 && r.bottom > 0) el.classList.add('in');
+            // 0.92 → 0.82 (2026-08-05, owner: "the motion happens before you fully
+            // scroll"). At 0.92 a title fired the instant its top edge crossed into
+            // the bottom 8% of the screen — i.e. before it was really on screen at
+            // all, so the animation had finished by the time you looked at it.
+            // ⚠ Do not push this far below ~0.8: this scroll fallback is also what
+            // reveals titles ALREADY in view at load (via the 80ms call below), and
+            // if it stops matching them the text never becomes visible.
+            if (r.top < vh * 0.82 && r.bottom > 0) el.classList.add('in');
         });
     };
     const observer = new IntersectionObserver((entries) => {
@@ -181,7 +188,9 @@ if (!prefersReducedMotion && 'IntersectionObserver' in window) {
                 observer.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.08 });
+        // threshold 0.08 → 0.2 and a negative bottom margin: the title must be a
+        // fifth visible AND clear of the bottom 8% of the viewport before it plays.
+    }, { threshold: 0.2, rootMargin: '0px 0px -8% 0px' });
     titles.forEach(el => observer.observe(el));
     setTimeout(revealIfSeen, 80);
     let revealTick = null;
