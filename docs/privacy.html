@@ -27,14 +27,14 @@
     <div class="legal-page">
         <p><a href="/">← Back to Tentai Technology</a></p>
         <h1>Privacy Policy</h1>
-        <p class="updated">Last updated: 2026-05-17 · Effective: 2026-05-17 · Tentai Technology operating since 2023</p>
+        <p class="updated">Last updated: 2026-08-15 · Effective: 2026-08-15 · Tentai Technology operating since 2023</p>
 
         <div class="draft-banner">
             <strong>Notice:</strong> This document is a working draft and has not yet been reviewed by counsel. The substantive commitments below are accurate to our current implementation; legal phrasing may be revised before the public beta opens. If you have questions in the meantime, email <a href="mailto:shykem.middleton@tentaitech.com">shykem.middleton@tentaitech.com</a>.
         </div>
 
         <h2>1. Who we are</h2>
-        <p>Tentai Technology (operator: Shykem Middleton) builds Vi (AI assistant) and delivers client services — websites, booking automation, and AI integrations. This policy covers all of them collectively, unless a product-specific notice supersedes it.</p>
+        <p>Tentai Technology (operator: Shykem Middleton) builds Vi (AI assistant), a personal budgeting app, and delivers client services — websites, booking automation, and AI integrations. This policy covers all of them collectively, unless a product-specific notice supersedes it.</p>
 
         <h2>2. Data we collect</h2>
         <ul>
@@ -44,10 +44,16 @@
             <li><strong>Per-turn diagnostics</strong> — model selection, latency, content-classifier signals (internal debugging only).</li>
             <li><strong>Idle state</strong> — Vi's autonomy queue and repo digests if you've enabled the dev integration.</li>
         </ul>
-        <p>We do <strong>not</strong> collect: voice recordings, payment information, location data beyond what you tell Vi conversationally, advertising identifiers, or biometric data.</p>
+        <p>We do <strong>not</strong> collect: voice recordings, card numbers or bank credentials, location data beyond what you tell Vi conversationally, advertising identifiers, or biometric data. Bank <em>transaction</em> data is collected only if you connect a financial account in the budgeting app — see section 2a.</p>
+
+        <h2>2a. Financial account data (budgeting app)</h2>
+        <p>The budgeting app is fully usable with manually entered bills and CSV imports. If you <em>choose</em> to connect a bank or card account, we use <strong>Plaid Inc.</strong> to connect to your financial institution. You authorize your institution to share account and transaction data with Plaid, and Plaid to share it with us, under Plaid's own terms — see the <a href="https://plaid.com/legal/#end-user-privacy-policy" rel="noopener">Plaid End User Privacy Policy</a>.</p>
+        <p><strong>What we receive:</strong> account names and types, balances, and transactions (date, amount, merchant/description, pending status). We never receive or store your bank login credentials.</p>
+        <p><strong>What we use it for:</strong> only your own budgeting features — matching bank transactions to your bill list so a bill can be marked paid with a real cleared date, showing balances on the accounts your bills draft from, and detecting recurring charges to ask you about. We do not sell financial data, use it for advertising, credit decisions, or lending, or share it with third parties, except: (a) Google Cloud, which hosts our database in the United States, and (b) an AI narration provider <em>you</em> choose to connect with your own key — in which case only the facts needed to word your daily summary (merchant, amount, date, category) are sent, never account numbers, credentials, or access tokens, and only after you accept a consent screen naming exactly what is shared.</p>
+        <p><strong>Security and control:</strong> bank access tokens are encrypted at rest (AES-256-GCM) in addition to Google Cloud's storage encryption. You can disconnect an account at any time from Settings → Connections; disconnecting revokes our access at Plaid (<code>/item/remove</code>) and deletes that account's transactions from our systems within 30 days. Manually entered bills, balances, and CSV imports are stored under your account and removed when you delete your account.</p>
 
         <h2>3. How we use it</h2>
-        <p>Your data is used by Vi, for you, and stays inside Tentai's infrastructure. We do <strong>not</strong> sell your data, share it with advertisers, or use it to train external AI models.</p>
+        <p>Your data is used by Vi, for you, and stays inside Tentai's infrastructure. We do <strong>not</strong> sell your data, share it with advertisers, or use it to train external AI models. The one exception is under your control: if you connect your own AI provider key in the budgeting app (section 2a), the redacted narration facts you consented to are sent to that provider.</p>
 
         <h2>4. Where it's stored</h2>
         <p>PostgreSQL on Google Cloud SQL, region <code>us-central1</code> (Iowa, USA). Encrypted at rest by Google Cloud Platform. Backed up daily. Access is restricted to the operator and authorized service accounts.</p>
