@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="description" content="A working demonstration of the Tentai parcel tracking system - take a parcel in at the counter, move it, and see what the customer sees.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tentaitech.com/parcel/">
+<meta property="og:title" content="Eli-Mo Parcel Desk">
+<meta property="og:description" content="A working demonstration - tap through a parcel from the counter to collection, then see what your customer sees.">
+<link rel="icon" href="/icon-48.png">
+<title>Eli-Mo Parcel Desk</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  /* Deliberate single-theme design: this is Tentai's brand world (near-black + gold),
+     and it sits beside a black/gold PDF the same client is reading. Every colour is
+     painted explicitly so the page holds on either host ground. */
+  :root {
+    color-scheme: dark;
+    --ink:      #0B0B0D;
+    --panel:    #16161A;
+    --raised:   #1E1E24;
+    --line:     #2A2A32;
+    --line-sub: #22222A;
+    --text:     #E9E7E1;
+    --dim:      #8C8C97;
+    --dimmer:   #63636D;
+    --gold:     #C9A84C;
+    --gold-dim: #6E5C2B;
+    /* status set, kept separate from the brand accent */
+    --s-desk:   #8A8A95;
+    --s-move:   #5B8DD9;
+    --s-ready:  #3FA86A;
+    --s-done:   #5A5A64;
+    --s-late:   #D9564A;
+    --shadow:   0 1px 0 rgba(255,255,255,0.03), 0 8px 24px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 470px;
+    margin: 0 auto;
+    padding-inline: 16px;
+    padding-block: 0 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 100%;
+  }
+
+  /* ---------- masthead ---------- */
+  .top {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 20;
+    background: linear-gradient(var(--ink) 74%, rgba(11,11,13,0));
+    padding-block: 14px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .brandrow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .brand {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 26px;
+    letter-spacing: 0.055em;
+    line-height: 1;
+    color: var(--text);
+  }
+  .brand em { font-style: normal; color: var(--gold); }
+  .demotag {
+    font-size: 9.5px;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+    border-radius: 3px;
+    padding: 3px 7px;
+    white-space: nowrap;
+  }
+
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 4px; }
+  .modes button {
+    font: inherit;
+    font-weight: 500;
+    font-size: 13.5px;
+    color: var(--dim);
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    padding: 9px 4px;
+    cursor: pointer;
+    transition: background .16s ease, color .16s ease;
+  }
+  .modes button .sub { display: block; font-size: 10.5px; color: var(--dimmer); letter-spacing: 0.04em; margin-top: 1px; }
+  .modes button[aria-selected="true"] { background: var(--raised); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+  .modes button[aria-selected="true"] .sub { color: var(--gold); }
+
+  /* ---------- counts ---------- */
+  .counts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .count {
+    background: var(--panel);
+    border: 1px solid var(--line-sub);
+    border-radius: 9px;
+    padding: 10px 11px;
+    border-top: 2px solid var(--cc, var(--line));
+  }
+  .count b { display: block; font-family: 'Bebas Neue', Impact, sans-serif; font-size: 27px; line-height: 1; letter-spacing: 0.02em; font-weight: 400; font-variant-numeric: tabular-nums; }
+  .count span { display: block; font-size: 10.5px; color: var(--dim); line-height: 1.3; margin-top: 4px; }
+
+  /* ---------- section headings ---------- */
+  h2 {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin: 4px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2::after { content: ""; flex: 1; height: 1px; background: var(--line-sub); }
+
+  /* ---------- parcel rows ---------- */
+  .list { display: flex; flex-direction: column; gap: 8px; }
+
+  .parcel {
+    background: var(--panel);
+    border: 1px solid var(--line-sub);
+    border-left: 3px solid var(--sc, var(--line));
+    border-radius: 9px;
+    padding: 11px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .phead { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .code {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--gold);
+  }
+  .pill {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--sc);
+    border: 1px solid currentColor;
+    border-radius: 20px;
+    padding: 2.5px 8px;
+    white-space: nowrap;
+  }
+  .route { font-size: 14px; line-height: 1.4; }
+  .route b { font-weight: 500; }
+  .route .arrow { color: var(--dimmer); padding: 0 5px; }
+  .meta { font-size: 11.5px; color: var(--dim); display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  .meta .fee { color: var(--text); font-variant-numeric: tabular-nums; }
+  .late { color: var(--s-late); font-weight: 500; }
+
+  .acts { display: flex; flex-wrap: wrap; gap: 6px; }
+  button.act {
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    background: var(--raised);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 7px 12px;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  button.act:hover { border-color: var(--dimmer); }
+  button.act.go { background: var(--gold); border-color: var(--gold); color: #17140A; font-weight: 700; }
+  button.act.go:hover { background: #D8B85C; }
+  button.act.ghost { background: transparent; color: var(--dim); }
+  .doneline { font-size: 11.5px; color: var(--s-done); display: flex; align-items: center; gap: 6px; }
+  .doneline svg { flex: none; }
+
+  /* ---------- whatsapp draft ---------- */
+  .draft {
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--s-ready);
+    border-radius: 8px;
+    padding: 10px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .draft .lbl { font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--s-ready); font-weight: 700; }
+  .draft p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text); }
+
+  /* ---------- form ---------- */
+  form { display: flex; flex-direction: column; gap: 9px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  input, select, textarea {
+    font: inherit;
+    font-size: 14.5px;
+    background: var(--raised);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 9px 10px;
+    width: 100%;
+    min-width: 0;
+  }
+  input::placeholder { color: var(--dimmer); }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line-sub);
+    border-radius: 10px;
+    padding: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+
+  /* ---------- customer view ---------- */
+  .lookup { display: flex; gap: 8px; }
+  .lookup input {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .hint { font-size: 12px; color: var(--dim); }
+  .hint b { color: var(--gold); font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 700; font-size: 11.5px; cursor: pointer; }
+  .hint b:hover { text-decoration: underline; }
+
+  .track { display: flex; flex-direction: column; gap: 14px; }
+  .trackhead { display: flex; flex-direction: column; gap: 3px; }
+  .trackhead .big { font-family: 'Bebas Neue', Impact, sans-serif; font-size: 25px; letter-spacing: 0.03em; line-height: 1.05; }
+
+  .tl { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+  .tl li { display: grid; grid-template-columns: 22px 1fr; gap: 11px; padding-bottom: 15px; position: relative; }
+  .tl li:last-child { padding-bottom: 0; }
+  .tl li::before {
+    content: ""; position: absolute; left: 10px; top: 17px; bottom: -1px; width: 2px;
+    background: var(--line);
+  }
+  .tl li:last-child::before { display: none; }
+  .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); background: var(--panel); display: flex; align-items: center; justify-content: center; z-index: 1; }
+  .dot.on { border-color: var(--dc); background: var(--dc); }
+  .dot.on svg { display: block; }
+  .dot svg { display: none; }
+  .tl .what { font-size: 14px; font-weight: 500; line-height: 1.3; }
+  .tl .when { font-size: 11.5px; color: var(--dim); margin-top: 1px; }
+  .tl li.pending .what { color: var(--dimmer); font-weight: 400; }
+
+  .empty { font-size: 13.5px; color: var(--dim); text-align: center; padding: 22px 8px; line-height: 1.6; }
+
+  /* ---------- signature ---------- */
+  .sigwrap { display: flex; flex-direction: column; gap: 8px; }
+  canvas.sig {
+    width: 100%;
+    height: 120px;
+    background: var(--raised);
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    touch-action: none;
+    display: block;
+  }
+
+  .note {
+    font-size: 11.5px;
+    color: var(--dimmer);
+    line-height: 1.6;
+    border-top: 1px solid var(--line-sub);
+    padding-top: 12px;
+  }
+  .note b { color: var(--dim); font-weight: 500; }
+
+  footer { text-align: center; font-size: 11px; color: var(--dimmer); line-height: 1.7; padding-top: 6px; }
+  footer span { color: var(--gold); }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    transform: translate(-50%, 12px);
+    background: var(--raised);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 9px 18px;
+    font-size: 13px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+    z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+<style>
+  :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  [hidden] { display: none !important; }
+  img { max-width: 100%; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brandrow">
+      <div class="brand">ELI&#8209;MO <em>Parcel Desk</em></div>
+      <div class="demotag">Demo &middot; sample parcels</div>
+    </div>
+    <div class="modes" role="tablist" aria-label="Choose view">
+      <button id="tab-counter" role="tab" aria-selected="true" aria-controls="view-counter">Counter<span class="sub">You &amp; your staff</span></button>
+      <button id="tab-customer" role="tab" aria-selected="false" aria-controls="view-customer">Customer<span class="sub">What they see</span></button>
+    </div>
+  </div>
+
+  <!-- ============ COUNTER ============ -->
+  <section id="view-counter" role="tabpanel" aria-labelledby="tab-counter">
+    <div class="counts" id="counts"></div>
+
+    <h2>Parcels on the books</h2>
+    <div class="list" id="list"></div>
+
+    <h2>Take in a parcel</h2>
+    <div class="panel">
+      <form id="newform">
+        <div class="row2">
+          <div class="field">
+            <label for="f-from">Sender</label>
+            <input id="f-from" name="from" value="Bwalya Phiri" autocomplete="off" required>
+          </div>
+          <div class="field">
+            <label for="f-fromphone">Sender phone</label>
+            <input id="f-fromphone" name="fromPhone" value="+260 97 550 2213" inputmode="tel" autocomplete="off">
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="f-to">Receiver</label>
+            <input id="f-to" name="to" value="Thandiwe Zulu" autocomplete="off" required>
+          </div>
+          <div class="field">
+            <label for="f-tophone">Receiver phone</label>
+            <input id="f-tophone" name="toPhone" value="+260 96 318 7704" inputmode="tel" autocomplete="off">
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-contents">What is in it</label>
+          <input id="f-contents" name="contents" value="Two boxes of spare parts" autocomplete="off">
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="f-origin">From</label>
+            <select id="f-origin" name="origin">
+              <option>Lusaka</option><option>Kitwe</option><option>Ndola</option><option>Livingstone</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-dest">To</label>
+            <select id="f-dest" name="dest">
+              <option>Kitwe</option><option>Ndola</option><option>Lusaka</option><option>Livingstone</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-fee">Fee paid (ZMW)</label>
+          <input id="f-fee" name="fee" value="150" inputmode="numeric">
+        </div>
+        <button type="submit" class="act go">Take in parcel &amp; give it a number</button>
+      </form>
+    </div>
+
+    <p class="note"><b>Try it:</b> take a parcel in and it gets its own number. Tap <b>On the bus</b>, then
+    <b>Arrived</b>, and the message to the receiver writes itself. Then switch to <b>Customer</b> at the top
+    and type that number in &mdash; that is what stops the phone calls.</p>
+  </section>
+
+  <!-- ============ CUSTOMER ============ -->
+  <section id="view-customer" role="tabpanel" aria-labelledby="tab-customer" hidden>
+    <div class="panel">
+      <div class="field">
+        <label for="f-code">Enter your parcel number</label>
+        <div class="lookup">
+          <input id="f-code" placeholder="EM-1041" autocomplete="off" spellcheck="false">
+          <button class="act go" id="lookupbtn" type="button">Check</button>
+        </div>
+      </div>
+      <p class="hint" id="codehints"></p>
+    </div>
+
+    <div id="trackout"></div>
+
+    <p class="note"><b>This is the page your customer opens.</b> No app to download, no account, no phone call &mdash;
+    they type the number from their receipt and see exactly where their parcel is.</p>
+  </section>
+
+  <footer>
+    <div>A working demonstration built by <span>Tentai Technology LC</span></div>
+    <div>Sample parcels only &mdash; nothing here is a real shipment.</div>
+  </footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORE = "elimo.parcels.v1";
+  var TOWNS_MIN = 1;
+
+  var STATUS = {
+    desk:      { label: "At the counter", colour: "var(--s-desk)",  verb: "Taken in at" },
+    transit:   { label: "On the way",     colour: "var(--s-move)",  verb: "Left" },
+    arrived:   { label: "Ready to collect", colour: "var(--s-ready)", verb: "Arrived in" },
+    collected: { label: "Collected",      colour: "var(--s-done)",  verb: "Collected in" }
+  };
+  var ORDER = ["desk", "transit", "arrived", "collected"];
+
+  var DAY = 86400000;
+  function daysAgo(n) { return Date.now() - n * DAY; }
+
+  function seed() {
+    return [
+      { code: "EM-1041", from: "Chanda Mwale", fromPhone: "+260 97 712 4408",
+        to: "Mutinta Hachanda", toPhone: "+260 96 884 1190",
+        contents: "Clothes and shoes", origin: "Lusaka", dest: "Kitwe", fee: 120,
+        status: "arrived", signed: null,
+        history: [
+          { s: "desk",    t: daysAgo(5.2) },
+          { s: "transit", t: daysAgo(4.9) },
+          { s: "arrived", t: daysAgo(4.1) }
+        ] },
+      { code: "EM-1042", from: "Nkandu Banda", fromPhone: "+260 95 204 7761",
+        to: "Joseph Tembo", toPhone: "+260 97 661 0032",
+        contents: "Salon supplies", origin: "Lusaka", dest: "Ndola", fee: 145,
+        status: "transit", signed: null,
+        history: [
+          { s: "desk",    t: daysAgo(1.4) },
+          { s: "transit", t: daysAgo(0.9) }
+        ] },
+      { code: "EM-1043", from: "Mercy Sakala", fromPhone: "+260 96 441 9028",
+        to: "Kondwani Lungu", toPhone: "+260 97 305 5514",
+        contents: "Phone accessories, one carton", origin: "Kitwe", dest: "Lusaka", fee: 95,
+        status: "desk", signed: null,
+        history: [ { s: "desk", t: daysAgo(0.2) } ] },
+      { code: "EM-1039", from: "Grace Mulenga", fromPhone: "+260 97 118 6620",
+        to: "Isaac Daka", toPhone: "+260 96 772 4431",
+        contents: "Books and stationery", origin: "Lusaka", dest: "Livingstone", fee: 180,
+        status: "collected", signed: "Isaac Daka",
+        history: [
+          { s: "desk",      t: daysAgo(9.6) },
+          { s: "transit",   t: daysAgo(9.1) },
+          { s: "arrived",   t: daysAgo(8.2) },
+          { s: "collected", t: daysAgo(7.5) }
+        ] }
+    ];
+  }
+
+  /* ---- storage, defensive on every touch ---- */
+  function load() {
+    try {
+      var raw = window.localStorage.getItem(STORE);
+      if (raw) {
+        var p = JSON.parse(raw);
+        if (Array.isArray(p) && p.length) return p;
+      }
+    } catch (e) { /* private window, blocked storage, thumbnailer */ }
+    return seed();
+  }
+  function save() {
+    try { window.localStorage.setItem(STORE, JSON.stringify(parcels)); } catch (e) {}
+  }
+
+  var parcels = load();
+  var nextNum = 1044;
+  parcels.forEach(function (p) {
+    var n = parseInt(String(p.code).replace(/\D/g, ""), 10);
+    if (n >= nextNum) nextNum = n + 1;
+  });
+
+  /* ---- helpers ---- */
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function when(ts) {
+    var diff = Date.now() - ts;
+    var d = Math.floor(diff / DAY);
+    var h = Math.floor(diff / 3600000);
+    if (h < 1) return "just now";
+    if (h < 24) return h + (h === 1 ? " hour ago" : " hours ago");
+    if (d === 1) return "yesterday";
+    if (d < 7) return d + " days ago";
+    return new Date(ts).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+  }
+  function daysWaiting(p) {
+    if (p.status !== "arrived") return 0;
+    var h = p.history[p.history.length - 1];
+    return Math.floor((Date.now() - h.t) / DAY);
+  }
+  function stampOf(p, s) {
+    for (var i = 0; i < p.history.length; i++) if (p.history[i].s === s) return p.history[i].t;
+    return null;
+  }
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.classList.remove("show"); }, 2200);
+  }
+  function copy(text, okMsg) {
+    var done = function () { toast(okMsg); };
+    try {
+      navigator.clipboard.writeText(text).then(done, function () { selectFallback(text); });
+    } catch (e) { selectFallback(text); }
+  }
+  function selectFallback(text) {
+    var ta = el("textarea");
+    ta.value = text;
+    ta.style.cssText = "position:fixed;top:-1000px;left:0;opacity:0";
+    document.body.appendChild(ta);
+    ta.select();
+    toast("Select the text and copy it");
+    setTimeout(function () { ta.remove(); }, 40);
+  }
+
+  function messageFor(p) {
+    if (p.status === "transit") {
+      return "Hello " + p.to + ". Parcel " + p.code + " from " + p.from +
+        " has left " + p.origin + " and is on the way to " + p.dest +
+        ". We will message you the moment it arrives. — Eli-Mo";
+    }
+    if (p.status === "arrived") {
+      return "Hello " + p.to + ". Parcel " + p.code + " from " + p.from +
+        " has arrived at our " + p.dest + " counter and is ready to collect. " +
+        "Please bring your ID. — Eli-Mo";
+    }
+    return "Hello " + p.to + ". A parcel " + p.code + " is coming to you from " + p.from +
+      ". We will tell you when it arrives. — Eli-Mo";
+  }
+
+  /* ---- counter: summary ---- */
+  function renderCounts() {
+    var moving = 0, ready = 0, late = 0;
+    parcels.forEach(function (p) {
+      if (p.status === "transit") moving++;
+      if (p.status === "arrived") { ready++; if (daysWaiting(p) >= 3) late++; }
+    });
+    var host = document.getElementById("counts");
+    host.textContent = "";
+    [
+      { n: moving, l: "On the way", c: "var(--s-move)" },
+      { n: ready,  l: "Ready to collect", c: "var(--s-ready)" },
+      { n: late,   l: "Sitting too long", c: late ? "var(--s-late)" : "var(--line)" }
+    ].forEach(function (c) {
+      var box = el("div", "count");
+      box.style.setProperty("--cc", c.c);
+      var b = el("b", null, String(c.n));
+      b.style.color = c.n || c.l !== "Sitting too long" ? c.c : "var(--dimmer)";
+      box.appendChild(b);
+      box.appendChild(el("span", null, c.l));
+      host.appendChild(box);
+    });
+  }
+
+  /* ---- counter: one parcel ---- */
+  function renderParcel(p) {
+    var st = STATUS[p.status];
+    var card = el("div", "parcel");
+    card.style.setProperty("--sc", st.colour);
+
+    var head = el("div", "phead");
+    head.appendChild(el("div", "code", p.code));
+    var pill = el("div", "pill", st.label);
+    head.appendChild(pill);
+    card.appendChild(head);
+
+    var route = el("div", "route");
+    var b1 = el("b", null, p.from);
+    var ar = el("span", "arrow", "→");
+    var b2 = el("b", null, p.to);
+    route.appendChild(b1); route.appendChild(ar); route.appendChild(b2);
+    card.appendChild(route);
+
+    var meta = el("div", "meta");
+    meta.appendChild(el("span", null, p.origin + " → " + p.dest));
+    meta.appendChild(el("span", "fee", "K" + p.fee));
+    meta.appendChild(el("span", null, p.contents));
+    var w = daysWaiting(p);
+    if (w >= 3) meta.appendChild(el("span", "late", "waiting " + w + " days"));
+    card.appendChild(meta);
+
+    if (p.status === "collected") {
+      var dl = el("div", "doneline");
+      dl.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      dl.appendChild(el("span", null, "Signed for by " + (p.signed || p.to) + " · " + when(stampOf(p, "collected"))));
+      card.appendChild(dl);
+      return card;
+    }
+
+    /* message draft, shown once the parcel is actually moving */
+    if (p.status === "transit" || p.status === "arrived") {
+      var d = el("div", "draft");
+      d.style.borderLeftColor = st.colour;
+      var lbl = el("div", "lbl", "Message for " + p.to);
+      lbl.style.color = st.colour;
+      d.appendChild(lbl);
+      d.appendChild(el("p", null, messageFor(p)));
+      var cbtn = el("button", "act", "Copy for WhatsApp");
+      cbtn.type = "button";
+      cbtn.addEventListener("click", function () { copy(messageFor(p), "Message copied — paste it to " + p.toPhone); });
+      var wrapb = el("div", "acts");
+      wrapb.appendChild(cbtn);
+      d.appendChild(wrapb);
+      card.appendChild(d);
+    }
+
+    var acts = el("div", "acts");
+    if (p.status === "desk") {
+      acts.appendChild(actionBtn("On the bus", "go", function () { advance(p, "transit"); }));
+    } else if (p.status === "transit") {
+      acts.appendChild(actionBtn("Arrived in " + p.dest, "go", function () { advance(p, "arrived"); }));
+    } else if (p.status === "arrived") {
+      acts.appendChild(actionBtn("Collected — sign for it", "go", function () { openSign(p, card); }));
+    }
+    card.appendChild(acts);
+    return card;
+  }
+
+  function actionBtn(label, cls, fn) {
+    var b = el("button", "act " + (cls || ""), label);
+    b.type = "button";
+    b.addEventListener("click", fn);
+    return b;
+  }
+
+  function advance(p, to) {
+    p.status = to;
+    p.history.push({ s: to, t: Date.now() });
+    save();
+    render();
+    toast(to === "transit" ? p.code + " is on the way" : p.code + " has arrived in " + p.dest);
+  }
+
+  /* ---- signature ---- */
+  function openSign(p, card) {
+    if (card.querySelector(".sigwrap")) return;
+    var box = el("div", "sigwrap");
+    var lab = el("div", "meta");
+    lab.appendChild(el("span", null, "Ask " + p.to + " to sign below — this is your proof."));
+    box.appendChild(lab);
+
+    var cv = el("canvas", "sig");
+    box.appendChild(cv);
+
+    var row = el("div", "acts");
+    row.appendChild(actionBtn("Save signature", "go", function () {
+      p.status = "collected";
+      p.signed = p.to;
+      p.history.push({ s: "collected", t: Date.now() });
+      save();
+      render();
+      toast("Signed for by " + p.to);
+    }));
+    row.appendChild(actionBtn("Clear", "ghost", function () { clearPad(); }));
+    box.appendChild(row);
+    card.appendChild(box);
+
+    var ctx, drawing = false;
+    function fit() {
+      var r = cv.getBoundingClientRect();
+      var dpr = window.devicePixelRatio || 1;
+      cv.width = Math.max(1, Math.round(r.width * dpr));
+      cv.height = Math.max(1, Math.round(r.height * dpr));
+      ctx = cv.getContext("2d");
+      ctx.scale(dpr, dpr);
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#E9E7E1";
+    }
+    function clearPad() { if (ctx) ctx.clearRect(0, 0, cv.width, cv.height); }
+    function pt(e) {
+      var r = cv.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    }
+    fit();
+    cv.addEventListener("pointerdown", function (e) {
+      drawing = true;
+      cv.setPointerCapture(e.pointerId);
+      var q = pt(e);
+      ctx.beginPath();
+      ctx.moveTo(q.x, q.y);
+      e.preventDefault();
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (!drawing) return;
+      var q = pt(e);
+      ctx.lineTo(q.x, q.y);
+      ctx.stroke();
+      e.preventDefault();
+    });
+    cv.addEventListener("pointerup", function () { drawing = false; });
+    cv.addEventListener("pointerleave", function () { drawing = false; });
+  }
+
+  /* ---- customer view ---- */
+  function renderTrack(code) {
+    var out = document.getElementById("trackout");
+    out.textContent = "";
+    var p = null;
+    var want = String(code || "").trim().toUpperCase();
+    for (var i = 0; i < parcels.length; i++) {
+      if (parcels[i].code.toUpperCase() === want) { p = parcels[i]; break; }
+    }
+    if (!want) return;
+    if (!p) {
+      var e = el("div", "panel");
+      e.appendChild(el("div", "empty", "We have no parcel with the number " + want + ". Check the number on your receipt."));
+      out.appendChild(e);
+      return;
+    }
+
+    var panel = el("div", "panel");
+    var tr = el("div", "track");
+
+    var head = el("div", "trackhead");
+    head.appendChild(el("div", "code", p.code));
+    head.appendChild(el("div", "big", STATUS[p.status].label));
+    var sub = el("div", "meta");
+    sub.appendChild(el("span", null, "From " + p.from));
+    sub.appendChild(el("span", null, p.origin + " → " + p.dest));
+    head.appendChild(sub);
+    tr.appendChild(head);
+
+    var ul = el("ul", "tl");
+    ORDER.forEach(function (s) {
+      var ts = stampOf(p, s);
+      var li = el("li", ts ? null : "pending");
+      var dot = el("div", "dot" + (ts ? " on" : ""));
+      dot.style.setProperty("--dc", STATUS[s].colour);
+      dot.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0B0B0D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      li.appendChild(dot);
+      var body = el("div");
+      var town = (s === "desk" || s === "transit") ? p.origin : p.dest;
+      body.appendChild(el("div", "what", STATUS[s].verb + " " + town));
+      body.appendChild(el("div", "when", ts ? when(ts) : "not yet"));
+      li.appendChild(body);
+      ul.appendChild(li);
+    });
+    tr.appendChild(ul);
+
+    if (p.status === "arrived") {
+      var cta = el("div", "draft");
+      cta.appendChild(el("div", "lbl", "Ready for you"));
+      cta.appendChild(el("p", null, "Collect it at the Eli-Mo counter in " + p.dest + ". Bring your ID and this number."));
+      tr.appendChild(cta);
+    }
+    if (p.status === "collected") {
+      var dn = el("div", "doneline");
+      dn.appendChild(el("span", null, "Signed for by " + (p.signed || p.to) + " · " + when(stampOf(p, "collected"))));
+      tr.appendChild(dn);
+    }
+
+    panel.appendChild(tr);
+    out.appendChild(panel);
+  }
+
+  function renderHints() {
+    var host = document.getElementById("codehints");
+    host.textContent = "Try ";
+    parcels.slice(0, 3).forEach(function (p, i) {
+      if (i) host.appendChild(document.createTextNode(i === 2 ? " or " : ", "));
+      var b = el("b", null, p.code);
+      b.setAttribute("role", "button");
+      b.setAttribute("tabindex", "0");
+      b.addEventListener("click", function () {
+        document.getElementById("f-code").value = p.code;
+        renderTrack(p.code);
+      });
+      b.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); b.click(); }
+      });
+      host.appendChild(b);
+    });
+  }
+
+  /* ---- render everything ---- */
+  function render() {
+    renderCounts();
+    var list = document.getElementById("list");
+    list.textContent = "";
+    var sorted = parcels.slice().sort(function (a, b) {
+      return ORDER.indexOf(a.status) - ORDER.indexOf(b.status);
+    });
+    sorted.forEach(function (p) { list.appendChild(renderParcel(p)); });
+    renderHints();
+    var cur = document.getElementById("f-code").value;
+    if (cur) renderTrack(cur);
+  }
+
+  /* ---- tabs ---- */
+  var tabC = document.getElementById("tab-counter");
+  var tabU = document.getElementById("tab-customer");
+  function show(which) {
+    var counter = which === "counter";
+    tabC.setAttribute("aria-selected", counter ? "true" : "false");
+    tabU.setAttribute("aria-selected", counter ? "false" : "true");
+    document.getElementById("view-counter").hidden = !counter;
+    document.getElementById("view-customer").hidden = counter;
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
+  tabC.addEventListener("click", function () { show("counter"); });
+  tabU.addEventListener("click", function () { show("customer"); });
+
+  /* ---- new parcel ---- */
+  document.getElementById("newform").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var f = ev.target;
+    var origin = f.origin.value, dest = f.dest.value;
+    if (origin === dest) { toast("A parcel cannot go from " + origin + " to " + origin); return; }
+    var code = "EM-" + (nextNum++);
+    parcels.unshift({
+      code: code,
+      from: f.from.value.trim() || "Sender",
+      fromPhone: f.fromPhone.value.trim(),
+      to: f.to.value.trim() || "Receiver",
+      toPhone: f.toPhone.value.trim(),
+      contents: f.contents.value.trim() || "Parcel",
+      origin: origin, dest: dest,
+      fee: parseInt(f.fee.value, 10) || 0,
+      status: "desk", signed: null,
+      history: [{ s: "desk", t: Date.now() }]
+    });
+    save();
+    render();
+    toast("Taken in as " + code);
+    document.getElementById("list").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  document.getElementById("lookupbtn").addEventListener("click", function () {
+    renderTrack(document.getElementById("f-code").value);
+  });
+  document.getElementById("f-code").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") { ev.preventDefault(); renderTrack(ev.target.value); }
+  });
+
+  render();
+  document.getElementById("f-code").value = "EM-1041";
+  renderTrack("EM-1041");
+})();
+</script>
+</body>
+</html>
