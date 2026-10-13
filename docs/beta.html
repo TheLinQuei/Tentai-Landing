@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Join the Vi beta &middot; Tentai Technology</title>
+    <meta name="description" content="Vi is an AI companion that remembers you and keeps its own personality. A small, approval-only beta: free while it runs, with a direct line to the founder. Adults only.">
+    <link rel="canonical" href="https://tentaitech.com/beta">
+
+    <!-- IP / Copyright / AI training opt-out (same as every page on the site) -->
+    <meta name="author" content="Shykem (Tentai Technology)">
+    <meta name="copyright" content="© 2026 Tentai Technology. All rights reserved.">
+    <meta name="rights" content="https://tentaitech.com/license.html">
+    <meta name="robots" content="noai, noimageai, noml">
+    <meta name="tdm-reservation" content="1">
+    <meta name="tdm-policy" content="https://tentaitech.com/license.html">
+
+    <!-- Open Graph: reuses the site card until a beta-specific one exists -->
+    <meta property="og:title" content="Your AI stays yours. Join the Vi beta.">
+    <meta property="og:description" content="An AI companion that remembers you and keeps its own personality. No update resets who it is. Limited spots, approval only.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Tentai Technology">
+    <meta property="og:url" content="https://tentaitech.com/beta">
+    <meta property="og:image" content="https://tentaitech.com/assets/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Your AI stays yours. Join the Vi beta.">
+    <meta name="twitter:description" content="An AI companion that remembers you and keeps its own personality. No update resets who it is. Limited spots, approval only.">
+    <meta name="twitter:image" content="https://tentaitech.com/assets/og-image.png">
+
+    <!-- Theme -->
+    <meta name="theme-color" content="#B8963F">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/icon-32.png" type="image/png" sizes="32x32">
+    <link rel="icon" href="/icon-48.png" type="image/png" sizes="48x48">
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="/icon-180.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Analytics Configuration: same Cloudflare Web Analytics token as the rest
+         of the site, so recruiting traffic shows up by referrer next to it. -->
+    <script>
+        window.ANALYTICS_TOKEN = '973c49d3079048ac8a2b322fbd266bab';
+    </script>
+    <script src="/landing/analytics.js" defer></script>
+
+    <link rel="stylesheet" href="/landing/landing.css?v=20260806about">
+    <link rel="stylesheet" href="/landing/beta.css?v=20261013beta">
+</head>
+<body>
+    <!-- No landing.js, frontdesk or contact modal on this page: the burger menu
+         and the sticky mobile band both open the services contact form, and the
+         front desk is the services assistant. Here every door leads to the
+         beta sign-up. -->
+
+    <div class="hero beta-hero">
+        <!-- Crest: original geometry (rings, a tick crown, a violet bead ring,
+             an eight-point lattice, and the logo's two circles at the heart).
+             Decorative only. -->
+        <div id="betaCrest" aria-hidden="true">
+            <svg viewBox="-160 -160 320 320" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                <g fill="none" stroke="#D4B876">
+                    <circle r="150" stroke-opacity="0.6"/>
+                    <circle r="136" stroke-width="16" stroke-opacity="0.32" stroke-dasharray="1.2 25.5"/>
+                    <circle r="104" stroke-opacity="0.45"/>
+                    <path d="M0 -92 L92 0 L0 92 L-92 0 Z" stroke-opacity="0.55"/>
+                    <rect x="-65" y="-65" width="130" height="130" stroke-opacity="0.55"/>
+                    <path d="M0 -56 L56 0 L0 56 L-56 0 Z" stroke-opacity="0.45"/>
+                    <circle r="30" stroke-opacity="0.7"/>
+                    <circle r="18" stroke-opacity="0.7"/>
+                </g>
+                <circle r="118" fill="none" stroke="#7A5BB5" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0 12.357" stroke-opacity="0.7"/>
+                <g fill="#D4B876" fill-opacity="0.7">
+                    <path d="M0 -156 l6 6 -6 6 -6 -6 Z"/>
+                    <path d="M156 0 l-6 6 -6 -6 6 -6 Z"/>
+                    <path d="M0 156 l6 -6 -6 -6 -6 6 Z"/>
+                    <path d="M-156 0 l6 6 6 -6 -6 -6 Z"/>
+                </g>
+            </svg>
+        </div>
+
+        <nav class="navbar">
+            <div class="nav-content">
+                <a href="/" class="brand">
+                    <div class="logo">
+                        <svg viewBox="0 0 64 64" width="40" height="40">
+                            <defs>
+                                <radialGradient id="logoGrad" cx="50%" cy="35%" r="65%">
+                                    <stop offset="0%" stop-color="#D4B876"/>
+                                    <stop offset="60%" stop-color="#D4B876"/>
+                                    <stop offset="100%" stop-color="#B8963F"/>
+                                </radialGradient>
+                            </defs>
+                            <circle cx="32" cy="32" r="28" fill="url(#logoGrad)" opacity="0.9"/>
+                            <circle cx="32" cy="32" r="18" fill="url(#logoGrad)"/>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-name">Tentai Technology</span>
+                        <span class="brand-tagline">AI &amp; Software Studio</span>
+                    </div>
+                </a>
+                <div class="beta-nav-right">
+                    <div class="nav-links">
+                        <a href="/">Home</a>
+                        <a href="#what">What it is</a>
+                        <a href="#how">How it works</a>
+                    </div>
+                    <a href="https://chat.tentaitech.com/signup" class="beta-nav-cta">Apply</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                Closed beta &middot; Approval only
+            </div>
+
+            <h1 class="hero-title">
+                <span class="title-main">Your AI stays <em>yours.</em></span>
+                <span class="title-sub">No update resets who it is.</span>
+            </h1>
+
+            <p class="hero-description">
+                <strong>Vi</strong> is an AI companion that remembers you and keeps its own personality.
+                We are letting a small group in early: people who already talk to AI and know what is missing.
+            </p>
+
+            <div class="hero-cta">
+                <a href="https://chat.tentaitech.com/signup" class="btn btn-primary">Apply for a spot</a>
+                <a href="#how" class="hero-textlink">How it works <span aria-hidden="true">&rarr;</span></a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Cost during the beta</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Founder reads every note</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">18+</div>
+                    <div class="stat-label">Adults only</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="beta-band" aria-hidden="true"></div>
+
+    <!-- What it is -->
+    <section id="what" class="section beta-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">What it is</span>
+                <h2 class="section-title">An AI companion that remembers you, and stays itself.</h2>
+                <p class="section-subtitle">Vi is built by Tentai. As a tester you get your own, running on the same system: you choose its name and who it is.</p>
+            </div>
+
+            <div class="beta-pillars">
+                <div class="beta-pillar">
+                    <h3>It remembers you</h3>
+                    <p>Tell it something once and it carries it forward: your name, your people, what you were dealing with last week. You are not reintroducing yourself every time you open the app.</p>
+                </div>
+                <div class="beta-pillar">
+                    <h3>You write who it is</h3>
+                    <p>Pick a name. Start from one of our personalities, or describe its character yourself in plain words. Warm, dry, blunt or playful: that is your call, not ours.</p>
+                </div>
+                <div class="beta-pillar">
+                    <h3>Updates do not reset it</h3>
+                    <p>The character you choose is copied into your account, not pointed at a template we can edit. When we improve the system underneath, it is not quietly rewritten into someone else.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pause -->
+    <section class="section pause-section">
+        <div class="container">
+            <p class="pause-line">The one you talk to should still be <em>there</em> tomorrow.</p>
+        </div>
+    </section>
+
+    <!-- What testers get: the services dossier from landing.css -->
+    <section id="get" class="section services-section beta-gets">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">For testers</span>
+                <h2 class="section-title">What you get</h2>
+                <p class="section-subtitle">Early access, no cost, and a real say in what this becomes.</p>
+            </div>
+
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="service-index">01</div>
+                    <h3>Free during the beta</h3>
+                    <p>No card and no charge while the beta runs. If paid plans arrive later, testers hear it from us first.</p>
+                    <div class="project-tags">
+                        <span>No card</span>
+                        <span>No charge</span>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="service-index">02</div>
+                    <h3>A direct line to the founder</h3>
+                    <p>Tentai is one person. Your notes go straight to the person who writes the code, not into a support queue, and every one gets read.</p>
+                    <div class="project-tags">
+                        <span>Solo founder</span>
+                        <span>Read by a human</span>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="service-index">03</div>
+                    <h3>A hand in what it becomes</h3>
+                    <p>Testers shape the priorities. What frustrates you moves up the list, and what you love gets protected.</p>
+                    <div class="project-tags">
+                        <span>Roadmap input</span>
+                        <span>Early features</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What we ask -->
+    <section id="ask" class="section beta-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">What we ask</span>
+                <h2 class="section-title">Four small things</h2>
+            </div>
+
+            <ul class="beta-asks">
+                <li class="beta-ask">
+                    <span class="beta-ask-label">A short survey</span>
+                    <p>A few questions when you apply, about two minutes. It helps us pick a real mix of people, not just whoever clicked first.</p>
+                </li>
+                <li class="beta-ask">
+                    <span class="beta-ask-label">Honest feedback</span>
+                    <p>Tell us what breaks, what feels off, and what would make you stay. Blunt is welcome. Polite and vague does not help anyone.</p>
+                </li>
+                <li class="beta-ask">
+                    <span class="beta-ask-label">18 or older</span>
+                    <p>The beta is for adults only. You confirm your age when you sign up.</p>
+                </li>
+                <li class="beta-ask">
+                    <span class="beta-ask-label">Patience</span>
+                    <p>It is a beta. Some things will break, and some features are still being built. Tell us when they do.</p>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <div class="beta-band" aria-hidden="true"></div>
+
+    <!-- How it works -->
+    <section id="how" class="section beta-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">How it works</span>
+                <h2 class="section-title">Apply, get reviewed, meet yours</h2>
+            </div>
+
+            <ol class="beta-steps">
+                <li class="beta-step">
+                    <span class="beta-step-num" aria-hidden="true">1</span>
+                    <div>
+                        <h3>Apply</h3>
+                        <p>Create an account at chat.tentaitech.com and answer the short survey.</p>
+                    </div>
+                </li>
+                <li class="beta-step">
+                    <span class="beta-step-num" aria-hidden="true">2</span>
+                    <div>
+                        <h3>We review by hand</h3>
+                        <p>A person reads every application. Spots are limited, so approval is not automatic.</p>
+                    </div>
+                </li>
+                <li class="beta-step">
+                    <span class="beta-step-num" aria-hidden="true">3</span>
+                    <div>
+                        <h3>Meet yours</h3>
+                        <p>When you are approved, your account opens up: name your AI, decide who it is, and start talking.</p>
+                    </div>
+                </li>
+            </ol>
+
+            <p class="beta-steps-note">Limited spots &middot; Sign-ups close when they are filled</p>
+        </div>
+    </section>
+
+    <!-- Closing call to action -->
+    <section class="section beta-section beta-final">
+        <div class="container">
+            <div class="beta-band" aria-hidden="true"></div>
+            <h2 class="section-title">Want a spot?</h2>
+            <p class="beta-final-lede">Applications are reviewed by hand. When the spots are filled, sign-ups close.</p>
+            <a href="https://chat.tentaitech.com/signup" class="btn btn-primary">Apply for the beta</a>
+
+            <div class="beta-legal-links">
+                <a href="https://chat.tentaitech.com/privacy">Privacy</a>
+                <a href="https://chat.tentaitech.com/terms">Terms</a>
+            </div>
+
+            <p class="beta-fineprint">
+                <strong>Vi is an AI, not a person.</strong> It can get things wrong, and it is not a substitute for a doctor, therapist, or emergency service.
+                If you are in crisis, call or text 988 in the US, or contact your local emergency number.
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer (the site footer; Chat and Contact are links here, not modal buttons) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <svg viewBox="0 0 64 64" width="36" height="36">
+                            <defs>
+                                <radialGradient id="footerGrad" cx="50%" cy="35%" r="65%">
+                                    <stop offset="0%" stop-color="#D4B876"/>
+                                    <stop offset="60%" stop-color="#D4B876"/>
+                                    <stop offset="100%" stop-color="#B8963F"/>
+                                </radialGradient>
+                            </defs>
+                            <circle cx="32" cy="32" r="28" fill="url(#footerGrad)" opacity="0.9"/>
+                            <circle cx="32" cy="32" r="18" fill="url(#footerGrad)"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="footer-brand-name">Tentai Technology</div>
+                        <div class="footer-tagline">AI &amp; Software Studio</div>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Explore</h4>
+                        <a href="/">Home</a>
+                        <a href="/#services">Services</a>
+                        <a href="https://chat.tentaitech.com">Get Vi</a>
+                    </div>
+
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <a href="/about">About</a>
+                        <a href="https://github.com/TheLinQuei">GitHub</a>
+                        <a href="mailto:shykem.middleton@tentaitech.com" class="beta-footer-mail">Contact</a>
+                    </div>
+
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <a href="/privacy.html">Privacy Policy</a>
+                        <a href="/terms.html">Terms of Use</a>
+                        <a href="/license.html">License &amp; IP</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2023-2026 Tentai Technology LC / Shykem Middleton. All rights reserved.</p>
+                <p style="font-size:0.85rem; opacity:0.7; margin-top:0.5rem;">
+                    Tentai Technology, Vi, and Vigil are trademarks of Tentai Technology LC. All software, brand assets, and site content are proprietary. <strong>Not licensed for AI/ML training.</strong> See <a href="/license.html" style="color:#D4B876;">License</a> &middot; <a href="/terms.html" style="color:#D4B876;">Terms</a> &middot; <a href="/privacy.html" style="color:#D4B876;">Privacy</a>.
+                </p>
+                <p class="footer-version">Tentai Technology LC &middot; est. 2023 &middot; v1.0.0 &middot; us-central1</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
