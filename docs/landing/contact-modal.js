@@ -62,6 +62,8 @@
 
     const card = overlay.querySelector('.vicm-card');
     const form = overlay.querySelector('.vicm-form');
+    const note = form.querySelector('textarea[name="note"]');
+    const defaultHint = note.placeholder;
     let currentTopic = 'contact';
     let lastTrigger = null;
 
@@ -108,6 +110,9 @@
         e.preventDefault();
         dismissVeil();
         currentTopic = trigger.getAttribute('data-contact') || 'contact';
+        // A trigger can set its own prompt for the message box
+        // (data-contact-hint); every other trigger keeps the default.
+        note.placeholder = trigger.getAttribute('data-contact-hint') || defaultHint;
         lastTrigger = trigger;
         overlay.classList.add('open');
         document.body.style.overflow = 'hidden';
